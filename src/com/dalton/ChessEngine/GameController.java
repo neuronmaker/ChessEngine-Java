@@ -28,22 +28,38 @@ public class GameController{
 		while(!command.equalsIgnoreCase("-quit")){
 			switch(command){
 				case "-start":
+				case "-status":
+				case "status":
+				case "stat":
+				case "-stat":
 					showBoard();
 					showConfig();
 				case "":
 				case "-help":
+				case "help":
+				case "h":
 					help();
 					break;
 				case "-show":
+				case "show":
 					showBoard();
 					break;
 				case "-settings":
+				case "-set":
+				case "-conf":
+				case "-config":
+				case "settings":
+				case "set":
+				case "conf":
+				case "config":
 					settings();
 					break;
 				case "-undo":
+				case "undo":
 					undo();
 					break;
 				case "-redo":
+				case "redo":
 					redo();
 					break;
 				default:
@@ -64,19 +80,25 @@ public class GameController{
 	private boolean parseMove(String move){
 		ArrayList<Integer> legalMoves;
 		Coord start=new Coord(move),end=new Coord();
-		while(start.isSet()==UNSET && board.getSquare(start.getIndex())!=Blank){
-			System.out.println("invalid coordinate try again (type -abort to abort):");
+		while(start.isSet()==UNSET || board.getSquare(start.getIndex())==Blank || PieceCode.decodeTeam(board.getSquare(start.getIndex()))==playerColor){
+			if(move.equalsIgnoreCase("-show")) showBoard();
+			else System.out.println("invalid coordinate try again (type -abort to abort):");
+			System.out.print(Types.getTeamString(playerColor)+" -> ");
 			move=scanner.nextLine();
 			if(move.equalsIgnoreCase("-abort")) return false;
 			start.setFromPGN(move);
+			if(PieceCode.decodeTeam(board.getSquare(start.getIndex()))==playerColor && board.getSquare(start.getIndex())!=Blank)
+				System.out.println("Not your piece!");
 		}
 		legalMoves=PieceCode.pieceObj(board.getSquare(start.getIndex())).getMoves(board,start.getIndex());//store the legal moves for the piece here
 		showBoard(start.getMask() | Move.destinationsToMask(legalMoves));//highlight this square and all legal moves
-		System.out.print("TO? "+start.getPGN()+"-> ");
+		System.out.print(Types.getTeamString(playerColor)+"TO? "+start.getPGN()+"-> ");
 		move=scanner.nextLine();
 		end.setFromPGN(move);
 		while(end.isSet()==UNSET || Move.isBlank(Move.findMoveByDest(legalMoves,end.getIndex()))){//if the end isn't set or isn't in the piece's legal move destinations
-			System.out.println("invalid coordinate try again (type -abort to abort):");
+			if(move.equalsIgnoreCase("-show")) showBoard();
+			else System.out.println("invalid coordinate try again (type -abort to abort):");
+			System.out.print(Types.getTeamString(playerColor)+"TO? "+start.getPGN()+"-> ");
 			move=scanner.nextLine();
 			if(move.equalsIgnoreCase("-abort")) return false;
 			end.setFromPGN(move);
@@ -87,16 +109,74 @@ public class GameController{
 
 	/** settings screen */
 	private void settings(){
-		System.out.println("Settings not working yet");
+		String input="";
+		boolean isAI=false;
+		int givenLevel=0;
+		int playerEdit;//1 white, 2 black, 0 invalid
+		int i;//tracker of position
+		while(!input.equalsIgnoreCase("-save")){
+			showConfig();
+			System.out.println("-save saves current config");
+			System.out.println("'white' or 'w' edits White");
+			System.out.println("'black' or 'b' edits Black");
+			System.out.println("Type 'human' or 'ai' to select human or ai and then the search depth with a number");
+			System.out.println("Example: white ai 5");
+			System.out.print("-> ");
+			input=scanner.nextLine().toLowerCase();//don't bother with case
+			switch(input.substring(0,1)){
+				case "w":
+					playerEdit=1;
+					break;
+				case "b":
+					playerEdit=2;
+					break;
+				case "-":
+					playerEdit=0;
+					break;//break early on commands
+				default:
+					System.out.println("Invalid.");
+					continue;
+			}
+			if(playerEdit!=0){
+				//assuming all is well, hunt for the tokens
+				System.out.println(playerEdit);
+				for(i=0; i<input.length(); ++i){
+					if(input.charAt(i)==' '){
+						++i;//move ahead of the space
+						break;//break the loop
+					}
+				}
+				isAI=(input.charAt(i)=='a');//first letter of "ai", stores if we want this player to be ai
+				for(; i<input.length(); ++i){
+					if(input.charAt(i)==' '){
+						++i;//move ahead of the space
+						break;//break the loop
+					}
+				}
+				givenLevel=Math.abs(Integer.parseInt(input.substring(i)));
+				if(playerEdit==1){//white
+					isWhiteAI=isAI;
+					WhiteAILevel=givenLevel;
+				}else{//black
+					isBlackAI=isAI;
+					BlackAILevel=givenLevel;
+				}
+			}
+		}
 	}
 
 	/** undo last move */
 	private void undo(){
-		System.out.println("Undo not working yet");
+		undoBuffer.push(board.saveState());
+		board.loadState(states.pop());
+		playerColor=!playerColor;//flip player
+		showBoard();
 	}
 	/** redo last move */
 	private void redo(){
-		System.out.println("Redo not working yet");
+		states.push(board.saveState());
+		board.loadState(undoBuffer.pop());
+		showBoard();
 	}
 
 	/** show help */
