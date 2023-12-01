@@ -5,6 +5,8 @@ Copyright (C) 2023 Dalton Herrewynen. All Rights Reserved
  */
 package com.dalton.ChessEngine;
 
+import java.util.ArrayList;
+
 import static com.dalton.ChessEngine.Types.*;
 
 /**
@@ -166,6 +168,33 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	 */
 	public static String getPieceName(int move){
 		return PieceCode.decodePieceName(getPieceCode(move));
+	}
+
+	/**
+	 * Converst a list of moves into a mask of their end indices
+	 * @param moves list of moves encoded into integers
+	 * @return 64 bit mask
+	 */
+	public static long destinationsToMask(ArrayList<Integer> moves){
+		long mask=0;
+		for(int i=0; i<moves.size(); ++i){
+			if(isBlank(moves.get(i))) continue;
+			mask|=getEndMask(moves.get(i));
+		}
+		return mask;
+	}
+
+	/**
+	 * Hunts for a move and searches by destination index... no optimizations so don't use in the AI
+	 * @param moves a list to match against
+	 * @param index the destination index
+	 * @return Blank move if not found, the move if found
+	 */
+	public static int findMoveByDest(ArrayList<Integer> moves,int index){
+		for(int i=0; i<moves.size(); ++i){
+			if(getEndIndex(moves.get(i))==index) return moves.get(i);//found a match, return it
+		}
+		return blank();//return blank to signal it's not there
 	}
 
 	/**

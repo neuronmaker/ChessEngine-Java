@@ -251,6 +251,23 @@ public class Coord{
 	}
 
 	/**
+	 * Returns a pretty printed version of the coordinate
+	 * @return letter number pair a1 -> h8
+	 */
+	public String getPGN(){
+		return indexToPGN(index);
+	}
+
+	/**
+	 * Turns an index into a pretty printed Coordinate
+	 * @param index the board index
+	 * @return a1->H8
+	 */
+	public static String indexToPGN(int index){
+		return Types.charUppercase(toLetter(indexToX(index)+1))+""+(indexToX(index)+1);
+	}
+
+	/**
 	 * Gets the X coordinate in number-letter (PGN compatible) format
 	 * @return letter 'a' through 'h'
 	 */

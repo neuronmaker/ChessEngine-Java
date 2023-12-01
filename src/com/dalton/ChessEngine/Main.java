@@ -7,10 +7,11 @@ package com.dalton.ChessEngine;
 /**
  * The central boot loading class for this project
  * @author Dalton Herrewynen
- * @version 0
+ * @version 1
  */
 public class Main{
 	public static void main(String[] args){
-		System.out.println("Hello world!");
+		GameController game=new GameController();
+		game.startPrimaryLoop();
 	}
 }

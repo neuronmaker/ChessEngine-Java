@@ -382,7 +382,7 @@ public class Board{
 		output.append("   Black Side       Unmoved Pieces"//Header
 				+"   EnPassant: "+Coord.orderedPair(Coord.maskToIndex(EnPassant))//En Passant Square
 				+"\n=================<>=================");//top bar
-		for(int y=BOARD_SIZE; y>=0; --y){
+		for(int y=BOARD_SIZE-1; y>=0; --y){
 			output.append("\n|");//start the line with a bar
 			for(int x=0; x<BOARD_SIZE; ++x){
 				int piece=getSquare(x,y);
