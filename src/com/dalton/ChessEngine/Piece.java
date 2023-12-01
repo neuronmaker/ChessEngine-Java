@@ -116,4 +116,22 @@ public abstract class Piece{
 
 		return moves;
 	}
+
+	/**
+	 * Get the mask of squares this piece can attack
+	 * @param friends  Mask of friendly units to mask out
+	 * @param pos The integer position index
+	 * @return a 64 bit integer bit mask
+	 */
+	//public abstract long attackMask(long friends, int pos);
+
+	/**
+	 * Override for when a board pass is preferred
+	 * @param board the current board
+	 * @param pos The integer position index
+	 * @return a 64 bit integer bit mask
+	 */
+	//public long attackMask(Board board, int pos){
+	//	return attackMask(board.alliedPieceMask(team),pos);
+	//}
 }

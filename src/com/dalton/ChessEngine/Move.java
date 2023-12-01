@@ -171,7 +171,7 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	}
 
 	/**
-	 * Converst a list of moves into a mask of their end indices
+	 * Converts a list of moves into a mask of their end indices
 	 * @param moves list of moves encoded into integers
 	 * @return 64 bit mask
 	 */
