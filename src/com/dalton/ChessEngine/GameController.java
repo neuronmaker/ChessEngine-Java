@@ -73,11 +73,21 @@ public class GameController{
 	}
 
 	/**
+	 * Tells the AI go generate a move, and the applies it to the board
+	 * @param AIColor WHITE or BLACK
+	 * @return True upon success, False if there was a problem
+	 */
+	public boolean makeAiMove(boolean AIColor){
+
+		return true;
+	}
+
+	/**
 	 * Parses a move from the command line, does not do PGN
 	 * @param move The text of the first
 	 * @return True if a move was made, False if not
 	 */
-	private boolean parseMove(String move){
+	private boolean parseMove(String move){//TODO change this to return a move instead of making one
 		ArrayList<Integer> legalMoves;
 		Coord start=new Coord(move),end=new Coord();
 		while(start.isSet()==UNSET || board.getSquare(start.getIndex())==Blank || PieceCode.decodeTeam(board.getSquare(start.getIndex()))==playerColor){
@@ -110,8 +120,8 @@ public class GameController{
 	/** settings screen */
 	private void settings(){
 		String input="";
-		boolean isAI=false;
-		int givenLevel=0;
+		boolean isAI;
+		int givenLevel;
 		int playerEdit;//1 white, 2 black, 0 invalid
 		int i;//tracker of position
 		while(!input.equalsIgnoreCase("-save")){
