@@ -27,11 +27,29 @@ public class Engine{
 	}
 
 	/**
+	 * Scores the entire board
+	 * @param board The current board state
+	 * @return A score from WHITE player's perspective
+	 */
+	public int score(Board board){
+		int score=0;
+		for(int i=0; i<PieceCode.PIECE_TYPES; ++i){
+			long positions=board.searchPiece(i);//for each piece code
+			int index=Coord.maskToIndex(positions);
+			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
+				score+=PieceCode.pieceObj(i).pieceValue(board,index);//todo replace this with a function here that can be smarter
+				index=Coord.maskToNextIndex(positions,index);//find next location
+			}
+		}
+		return 0;
+	}
+
+	/**
 	 * Generates all possible moves, split them up between all threads.
 	 * Then returns the move with the best score
-	 * @param board
-	 * @param player
-	 * @return
+	 * @param board  Current state of the board for the search
+	 * @param player Pick best move for whom? (WHITE or BLACK)
+	 * @return Encoded move integer
 	 */
 	public int getBestMove(Board board,boolean player){
 		/*

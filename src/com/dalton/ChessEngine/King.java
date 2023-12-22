@@ -19,7 +19,7 @@ public class King extends Piece{
 			qSideCastleMask=0b0000000000000000000000000000000000000000000000000000000000001110L,
 			kSideCastleMask=0b0000000000000000000000000000000000000000000000000000000001100000L;
 	/** The attacking mask */
-	private static final long[] attackMask={
+	private static final long[] attackMask={//todo find edges, make a mask for each edge and combine them for the middle, using masking to chop off the edges when touching an edge
 			0b0000000000000000000000000000000000000000000000000000001100000010L,
 			0b0000000000000000000000000000000000000000000000000000011100000101L,
 			0b0000000000000000000000000000000000000000000000000000111000001010L,
@@ -156,7 +156,7 @@ public class King extends Piece{
 	 * @param position Where this King is located on the board
 	 * @return True if the King is in check, False otherwise
 	 */
-	public boolean isInCheck(Board board,int position){
+	public boolean isInCheck(Board board,int position){//todo change this to use an attacking mask for speed
 		//Check if any enemy pieces can can attack the King's position
 		for(int piece=(!team) ? 0 : 1; piece<PieceCode.KingW; piece+=2){//get all pieces for other team by integer code
 			int pieceIndex=Coord.maskToIndex(board.searchPiece(piece));//locate the piece

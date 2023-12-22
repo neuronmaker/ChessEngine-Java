@@ -15,7 +15,7 @@ import static com.dalton.ChessEngine.Types.*;
  */
 public class Pawn extends Piece{
 	/** Bit masks used for fast detection of pawns that can be promoted */
-	public static long
+	public static final long
 			WHITE_Promotion_mask=0b0000000011111111000000000000000000000000000000000000000000000000L,
 			BLACK_Promotion_mask=0b0000000000000000000000000000000000000000000000001111111100000000L;
 

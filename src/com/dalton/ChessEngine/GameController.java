@@ -78,7 +78,6 @@ public class GameController{
 	 * @return True upon success, False if there was a problem
 	 */
 	public boolean makeAiMove(boolean AIColor){
-
 		return true;
 	}
 
@@ -90,7 +89,7 @@ public class GameController{
 	private boolean parseMove(String move){//TODO change this to return a move instead of making one
 		ArrayList<Integer> legalMoves;
 		Coord start=new Coord(move),end=new Coord();
-		while(start.isSet()==UNSET || board.getSquare(start.getIndex())==Blank || PieceCode.decodeTeam(board.getSquare(start.getIndex()))==playerColor){
+		while(start.isSet()==UNSET || board.getSquare(start.getIndex())==Blank || PieceCode.decodeTeam(board.getSquare(start.getIndex()))!=playerColor){//loop until the player selects one of their pieces
 			if(move.equalsIgnoreCase("-show")) showBoard();
 			else System.out.println("invalid coordinate try again (type -abort to abort):");
 			System.out.print(Types.getTeamString(playerColor)+" -> ");
@@ -135,13 +134,13 @@ public class GameController{
 			input=scanner.nextLine().toLowerCase();//don't bother with case
 			switch(input.substring(0,1)){
 				case "w":
-					playerEdit=1;
+					playerEdit=1;//edit white
 					break;
 				case "b":
-					playerEdit=2;
+					playerEdit=2;//edit black
 					break;
 				case "-":
-					playerEdit=0;
+					playerEdit=0;//not editing a player
 					break;//break early on commands
 				default:
 					System.out.println("Invalid.");
