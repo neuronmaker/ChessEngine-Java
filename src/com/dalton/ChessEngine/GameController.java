@@ -24,7 +24,7 @@ public class GameController{
 
 	/** Runs the game */
 	public void startPrimaryLoop(){
-		String command="-start";
+		String command="-start";//display starting screen and then prompt for input
 		while(!command.equalsIgnoreCase("-quit")){
 			switch(command){
 				case "-start":
@@ -125,11 +125,13 @@ public class GameController{
 		int i;//tracker of position
 		while(!input.equalsIgnoreCase("-save")){
 			showConfig();
-			System.out.println("-save saves current config");
-			System.out.println("'white' or 'w' edits White");
-			System.out.println("'black' or 'b' edits Black");
-			System.out.println("Type 'human' or 'ai' to select human or ai and then the search depth with a number");
-			System.out.println("Example: white ai 5");
+			System.out.println("""
+				-save saves current config
+				'white' or 'w' edits White
+				'black' or 'b' edits Black
+				Type 'human' or 'ai' to select human or ai and then the search depth with a number
+				Example: white ai 5
+				""");
 			System.out.print("-> ");
 			input=scanner.nextLine().toLowerCase();//don't bother with case
 			switch(input.substring(0,1)){
@@ -147,28 +149,34 @@ public class GameController{
 					continue;
 			}
 			if(playerEdit!=0){
+				isAI=false;//initialize to assume a human player
 				//assuming all is well, hunt for the tokens
-				System.out.println(playerEdit);
 				for(i=0; i<input.length(); ++i){
+					if(input.charAt(i)=='a'){//hunt for first letter of "ai"
+						isAI=true;//set to make AI generate the move
+						break;//break the loop
+					}else if(input.charAt(i)=='h'){//hunt for first letter of "human"
+						isAI=false;//set to prompt human for a move
+						break;//break the loop
+					}
+				}
+				for(; i<input.length(); ++i){//move forward until there is a space
 					if(input.charAt(i)==' '){
 						++i;//move ahead of the space
 						break;//break the loop
 					}
 				}
-				isAI=(input.charAt(i)=='a');//first letter of "ai", stores if we want this player to be ai
-				for(; i<input.length(); ++i){
-					if(input.charAt(i)==' '){
-						++i;//move ahead of the space
-						break;//break the loop
+				try{
+					givenLevel=Math.abs(Integer.parseInt(input.substring(i)));
+					if(playerEdit==1){//white
+						isWhiteAI=isAI;
+						WhiteAILevel=givenLevel;
+					}else{//black
+						isBlackAI=isAI;
+						BlackAILevel=givenLevel;
 					}
-				}
-				givenLevel=Math.abs(Integer.parseInt(input.substring(i)));
-				if(playerEdit==1){//white
-					isWhiteAI=isAI;
-					WhiteAILevel=givenLevel;
-				}else{//black
-					isBlackAI=isAI;
-					BlackAILevel=givenLevel;
+				}catch(Exception e){
+					System.out.println("Cannot find a number, invalid expression");
 				}
 			}
 		}
