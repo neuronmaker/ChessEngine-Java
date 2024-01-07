@@ -6,7 +6,7 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * Holds the chess engine code
  * @author Dalton Herrewynen
- * @version 0
+ * @version 0.1
  */
 public class Engine{
 	private int maxDepth;

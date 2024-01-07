@@ -11,7 +11,7 @@ import static com.dalton.ChessEngine.Types.*;
 
 /**
  * Static methods to handle the encoding and decoding of moves as int primitives. Objects are too big and slow.<br/>
- * Structure: 4Bits{PieceCode} 6Bits{EndPosition} 6Bits{StartPosition}<br/>
+ * Structure: 16Bits{SpecialCodes} 4Bits{PieceCode} 6Bits{EndPosition} 6Bits{StartPosition}<br/>
  * Special Code bits: 5{EnPassant} 4{Pawn Promotion} 3{Castling} 2{Capture} 1{Move or direction}<br/>
  * @author Dalton Herrewynen
  * @version 2
@@ -177,8 +177,8 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	 */
 	public static long destinationsToMask(ArrayList<Integer> moves){
 		long mask=0;
-		for(int i=0; i<moves.size(); ++i){
-			if(isBlank(moves.get(i))) continue;
+		for(int i=0; i<moves.size(); ++i){//Old style loops are sometimes slightly faster than enhanced for loops
+			if(isBlank(moves.get(i))) continue;//skip blank moves, so we don't flag the 0 space by accident
 			mask|=getEndMask(moves.get(i));
 		}
 		return mask;
@@ -191,7 +191,7 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	 * @return Blank move if not found, the move if found
 	 */
 	public static int findMoveByDest(ArrayList<Integer> moves,int index){
-		for(int i=0; i<moves.size(); ++i){
+		for(int i=0; i<moves.size(); ++i){//Old style loops are sometimes slightly faster than enhanced for loops
 			if(getEndIndex(moves.get(i))==index) return moves.get(i);//found a match, return it
 		}
 		return blank();//return blank to signal it's not there
@@ -235,7 +235,7 @@ public abstract class Move{//class can't be instantiated, but it has static help
 			case blankMove -> "Blank Move";
 			case kSideCastle -> "King Side Castle";
 			case qSideCastle -> "Queen Side Castle";
-			case EnPassantCapture -> "EnPassant";
+			case EnPassantCapture -> "EnPassant Capture";
 			case pawnDoubleMove -> "Pawn double move on start";
 			case capture -> "capture";
 			default -> "Normal Move";

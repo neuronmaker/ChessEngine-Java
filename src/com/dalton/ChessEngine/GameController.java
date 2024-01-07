@@ -10,7 +10,7 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * The Game controller
  * @author Dalton Herrewynen
- * @version 0
+ * @version 0.2
  */
 public class GameController{
 	Scanner scanner;
