@@ -17,6 +17,7 @@ public class GameController{
 	Stack<BoardState> states;
 	Stack<BoardState> undoBuffer;
 	Board board;
+	Engine engine;
 	boolean playerColor;
 	boolean isWhiteAI,isBlackAI;
 	int WhiteAILevel;
@@ -62,10 +63,23 @@ public class GameController{
 				case "redo":
 					redo();
 					break;
-				default:
-					if(parseMove(command)==SUCCESS) playerColor=!playerColor;
+				case "ai":
+				case "-ai":
+					if(makeAiMove(playerColor)==SUCCESS) playerColor=!playerColor;
 					showBoard();
 					break;
+				default:
+					if((isWhiteAI&&playerColor==WHITE) || (isBlackAI&&playerColor==BLACK)){//if player is AI
+						System.out.println("Player is AI, making a move");
+						if(makeAiMove(playerColor)==SUCCESS) playerColor=!playerColor;//attempt to make a move
+					}else{//if a human player
+						if(parseMove(command)==SUCCESS) playerColor=!playerColor;//attempt to get move from user
+					}
+					showBoard();
+					break;
+			}
+			if((isWhiteAI&&playerColor==WHITE) || (isBlackAI&&playerColor==BLACK)){
+				System.out.println("Player is AI, type any non-command to let computer move");
 			}
 			System.out.print(Types.getTeamString(playerColor)+" -> ");
 			command=scanner.nextLine();
@@ -78,7 +92,12 @@ public class GameController{
 	 * @return True upon success, False if there was a problem
 	 */
 	public boolean makeAiMove(boolean AIColor){
-		return true;
+		System.out.println("Making AI move");
+		int move=engine.getBestMove(new Board(board),AIColor,(playerColor==WHITE)?WhiteAILevel:BlackAILevel);//Tell the engine what maximum depth to search
+		System.out.println("Player: "+Types.getTeamString(playerColor)+": "+Move.describe(move));
+		if(Move.isBlank(move)) return false;//if no legal moves found, flag error
+		makeMove(move);//if a move was blank, make it
+		return true;//flag success
 	}
 
 	/**
@@ -198,13 +217,16 @@ public class GameController{
 
 	/** show help */
 	public void help(){
-		String helpText="Starting/Help Screen:\n"
-				+"Make a move by specifying a coordinate (a1, b2, etc)\n"
-				+"Legal squares will be marked, castling is done by moving the King 2 spaces\n"
-				+"End the move by typing the end coordinate (a1, b2, etc)\n"
-				+"See this message again with -help\n"
-				+"Enter settings with -settings\n"
-				+"Command -quit, -undo, -redo are self explanatory\n";
+		String helpText="""
+				Starting/Help Screen:
+				Make a move by specifying a coordinate (a1, b2, etc)
+				Legal squares will be marked, castling is done by moving the King 2 spaces
+				End the move by typing the end coordinate (a1, b2, etc)
+				See this message again with -help
+				Enter settings with -settings
+				Make the AI generate a move with "-ai"
+				Command -quit, -undo, -redo are self explanatory
+				""";
 		System.out.println(helpText);
 	}
 
@@ -217,7 +239,7 @@ public class GameController{
 		}else{
 			res+="Human/Terminal";
 		}
-		res+="\t Black: ";
+		res+="\nBlack: ";
 		if(isBlackAI){
 			res+="AI Depth: "+BlackAILevel;
 		}else{
@@ -282,12 +304,24 @@ public class GameController{
 		states=new Stack<>();
 		undoBuffer=new Stack<>();
 		board=new Board(Board.DEFAULT);
-		playerColor=true;
+		playerColor=WHITE;
 		isWhiteAI=false;
 		isBlackAI=false;
-		WhiteAILevel=0;
-		BlackAILevel=0;
+		WhiteAILevel=4;
+		BlackAILevel=4;
 		scanner=new Scanner(System.in);
+		engine=new Engine(1,30);//old game used 4, 10, and 30 as depth level
 		System.out.println("Game initialized");
+	}
+
+	/**
+	 * Makes the game AI vs AI
+	 * @param bothLevel How many turns ahead are both side looking?
+	 */
+	public void startAIGame(int bothLevel){
+		isWhiteAI=true;
+		isBlackAI=true;
+		WhiteAILevel=bothLevel;
+		BlackAILevel=bothLevel;
 	}
 }
