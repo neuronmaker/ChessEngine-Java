@@ -201,7 +201,7 @@ public class CoordTest{
 				assertEquals("X coordinate at: "+x+" should be: "+letterIndex[x]+" got: "+coord.getXPGN(),
 						letterIndex[x],coord.getXPGN());
 				assertEquals("Y coordinate at: "+y+" should be: "+numberIndex[y]+" got: "+coord.getYPGN(),
-						letterIndex[y],coord.getYPGN());
+						numberIndex[y],coord.getYPGN());
 			}
 		}
 	}

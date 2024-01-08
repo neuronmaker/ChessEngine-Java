@@ -4,17 +4,17 @@ My personal version of the Chess back end that could have been used in my comput
 
 ## Intellectual property
 
-Since I wrote the overwhelming majority of the latest version of the old game, I am the author of those lines of code and I own the rights to use them. What little remains that was not written and created by me alone will be promptly removed. I originally carried them over so that it would mostly work with the old game to avoid giving us a vastly unfair advantage of a new and improved scoring algorithm. Since I no longer need to essentially do the exact same job as the old game's back end, I can replace all that old code with faster, more efficient, and hopefully more accurate code.
+Since I wrote the overwhelming majority of the latest version of the old game, I am the author of those lines of code and I own the rights to use what I wrote. Any contested lines are going to be removed before Version 1 anyway, they're only there to be compatible with the old game, a task which is no longer relevant and would actively hinder this versions if I left those parts as-is.
 
 ## Design
 
-The backend is mostly compatible with the old version I wrote and re-wrote for the group project. Only code that I wrote will survive in this project. So far, only the scoring algorithm was borrowed from the other authors of my group project, and I plan to remove and re-write it anyway since I see some problems with the old algorithm.
+The backend is stripped down and made to be more efficient than the original group project. Only code that I wrote will survive in this project. So far, only the scoring algorithm was borrowed from the other authors of my group project, and I plan to remove and re-write it anyway since I can write something better.
 
 The design is not a 1:1 replacement of the old game, mostly because of the headache of converting to the systems and designs used by some parts of the old game (some methods actively use both the old and new move types... not good). Hence, this is more of a fresh start.
 
 ### Board
 
-For speed and size reasons, I found that the original version of the game ran faster eliminated null pointer problems when using a bitboard and passing integer piece codes around instead of Piece pointers. Searching is a lot faster when using a bitboard, and integer piece codes have some unique advantages including the possibility of using `switch` statements and look up tables for speed.
+For speed and memory reasons, I found that the original version of the game ran faster eliminated null pointer problems when using a bitboard and passing integer piece codes around instead of Piece pointers. Searching is a lot faster when using a bitboard, and integer piece codes have some unique advantages including the possibility of using `switch` statements and look up tables for speed.
 
 The board does not calculate any moves or do anything interesting, its only job is to store and update the board and piece positions:
 

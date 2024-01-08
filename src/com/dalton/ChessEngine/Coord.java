@@ -276,11 +276,11 @@ public class Coord{
 	}
 
 	/**
-	 * Gets the X coordinate in number-letter (PGN compatible) format
+	 * Gets the Y coordinate in number-letter (PGN compatible) format
 	 * @return integer 1 through 8
 	 */
 	public char getYPGN(){
-		return toLetter(getY()+1);
+		return (char) ('0'+getY()+1);
 	}
 
 	/**
