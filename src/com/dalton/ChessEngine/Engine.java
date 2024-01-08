@@ -6,11 +6,12 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * Holds the chess engine code
  * @author Dalton Herrewynen
- * @version 0.1
+ * @version 0.2
  */
 public class Engine{
 	private int maxDepth;
-	private static int maxThreads=1;
+	private int maxThreads=1;
+	private Board[] boardArr;
 
 	/**
 	 * Loads default values and does the pre-computations for scoring and move generation
@@ -20,6 +21,10 @@ public class Engine{
 	public Engine(int threads,int depth){
 		maxDepth=depth;
 		maxThreads=threads;
+		boardArr=new Board[maxDepth];
+		for(int i=0; i<maxDepth; ++i){//pre-allocate the space for minimax boards
+			boardArr[i]=new Board(Board.CLEAR);
+		}
 		/*
 		load/calculate score table
 		pre-calculate attack squares
@@ -33,7 +38,7 @@ public class Engine{
 	 * @param board The current board state
 	 * @return A score from WHITE player's perspective
 	 */
-	public int score(Board board){
+	public static int score(Board board){
 		int score=0;
 		for(int i=0; i<PieceCode.PIECE_TYPES; ++i){
 			long positions=board.searchPiece(i);//for each piece code
@@ -53,7 +58,7 @@ public class Engine{
 	 * @param team  WHITE or BLACK
 	 * @return ArrayList of moves encoded into integers
 	 */
-	public ArrayList<Integer> getLegalMoves(Board board,boolean team){
+	public static ArrayList<Integer> getLegalMoves(Board board,boolean team){
 		ArrayList<Integer> moves=new ArrayList<>();
 		int i;
 		if(team==WHITE) i=0;//WHITE starts at 0
@@ -84,13 +89,18 @@ public class Engine{
 		Split them between the threads
 		Run minimax on the moves
 		Try to store all enemy moves a level or 2 deep, then recall the score from the move the enemy makes so save on computing time
+		consider pre-allocating the boards to save on allocation time
 		 */
+		depth=Math.min(depth,maxDepth);
 		ArrayList<Integer> legalMoves=getLegalMoves(board,player);
 		ArrayList<Integer> scores=new ArrayList<>();
 		int bestMove,bestScore;
+		Board movedBoard=new Board(Board.CLEAR);
 		if(legalMoves.isEmpty()) return Move.blank();//signal there are no moves if there are no moves found
 		for(int i=0; i<legalMoves.size(); ++i){
-			scores.add(minimax(legalMoves.get(i),new Board(board),player,depth,Integer.MIN_VALUE,Integer.MAX_VALUE));
+			movedBoard.loadState(board);
+			movedBoard.makeMove(legalMoves.get(i));
+			scores.add(minimax(movedBoard,player,depth,Integer.MIN_VALUE,Integer.MAX_VALUE));
 		}
 		bestMove=legalMoves.get(0);//there is at least one move if we get here
 		bestScore=scores.get(0);
@@ -124,9 +134,8 @@ public class Engine{
 	}
 
 	/**
-	 * Gets the score for one move encoded as an integer
+	 * Gets the score of the board by searching possible moves, usually called after a move
 	 * Initial call should set alpha to a very low value and beta to a very high value
-	 * @param move  The move to score
 	 * @param board The current board
 	 * @param team  Who's turn? WHITE or BLACK
 	 * @param depth How many more levels to search
@@ -134,7 +143,7 @@ public class Engine{
 	 * @param beta  Lowest score found
 	 * @return integer score (higher score favors WHITE)
 	 */
-	public int minimax(int move, Board board, boolean team, int depth, int alpha, int beta){
+	public int minimax(Board board, boolean team, int depth, int alpha, int beta){
 		/*
 		Get all moves after this move, store them
 		Score them
@@ -142,24 +151,34 @@ public class Engine{
 		sort them by score
 		search best move first (recall from storage, don't recompute)
 		 */
-		board.makeMove(move);//make the move to score
 		if(depth<=0) return score(board);//if at end of search, then return the score here
 		ArrayList<Integer> moves=getLegalMoves(board,team);//call the move generator
 		if(moves.isEmpty()) return score(board);//if no moves present, return this board position score
+		Board movedBoard=boardArr[depth];//get reference to the pre-allocated board array
 		int bestScore;
 		if(team==WHITE){//WHITE is maximizing player
 			bestScore=Integer.MIN_VALUE;//have not found a good move yet, pick the worst possible case for now
 			for(int i=0; i<moves.size() && bestScore>=alpha; ++i){
-				bestScore=Math.max(bestScore,minimax(moves.get(i),new Board(board),BLACK,depth-1,alpha,beta));
-				alpha=Math.max(alpha,bestScore);//store the best found score
-				if(bestScore>beta) break;//break on beta cut off (pruning)
+				movedBoard.loadState(board);
+				movedBoard.makeMove(moves.get(i));//load and move to avoid creating new boards all the time
+				bestScore=Math.max(bestScore,minimax(movedBoard,BLACK,depth-1,alpha,beta));
+				alpha=Math.max(alpha,bestScore);//store the maximal found score
+				if(bestScore>=beta){
+					//System.out.println("Alpha break Depth: "+depth+" "+ Move.describe(moves.get(i)));
+					break;//break on beta cut off (pruning)
+				}
 			}
 		}else{//BLACK is minimizing player
 			bestScore=Integer.MAX_VALUE;//have not found a good move yet, go with worst option for now
 			for(int i=0; i<moves.size(); ++i){
-				bestScore=Math.min(bestScore,minimax(moves.get(i),new Board(board),WHITE,depth-1,alpha,beta));
-				beta=Math.min(beta,bestScore);//best minimal score found
-				if(bestScore<alpha) break;//break on alpha cut off (pruning)
+				movedBoard.loadState(board);
+				movedBoard.makeMove(moves.get(i));//load and move to avoid creating new boards all the time
+				bestScore=Math.min(bestScore,minimax(movedBoard,WHITE,depth-1,alpha,beta));
+				beta=Math.min(beta,bestScore);//best minimal found score
+				if(bestScore<=alpha){
+					//System.out.println("Beta break Depth: "+depth+" "+ Move.describe(moves.get(i)));
+					break;//break on alpha cut off (pruning)
+				}
 			}
 		}
 		return bestScore;
