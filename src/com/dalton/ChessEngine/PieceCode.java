@@ -99,6 +99,25 @@ public abstract class PieceCode{
 	}
 
 	/**
+	 * Encodes a char into an integer Piece code, ignores case and uses the provided team value instead
+	 * @param letter Letter to encode
+	 * @param team   Override the team (WHITE or BLACK)
+	 * @return Integer Piece Code
+	 */
+	public static int encodeChar(char letter, boolean team){
+		int offset=(team==WHITE)?0:1;//offset for later user
+		return switch(charUppercase(letter)){//force a known case
+			case 'P' -> PawnW+offset;//use the offset to encode the team as calculated earlier
+			case 'R' -> RookW+offset;
+			case 'N' -> KnightW+offset;
+			case 'B' -> BishopW+offset;
+			case 'Q' -> QueenW+offset;
+			case 'K' -> KingW+offset;
+			default -> Blank;//default is blank
+		};
+	}
+
+	/**
 	 * Gets the string representation without a null pointer exception
 	 * @param code The piece code to look up
 	 * @return The pretty printed String

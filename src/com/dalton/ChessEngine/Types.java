@@ -41,6 +41,15 @@ public abstract class Types{// class can't be instantiated, but it has static he
 	}
 
 	/**
+	 * Checks if a <code>char</code> is upper case
+	 * @param letter the char to check the case
+	 * @return TRUE if uppercase, FALSE if lowercase
+	 */
+	public static boolean isUppercase(char letter){
+		return (letter>='A' && letter<='Z');
+	}
+
+	/**
 	 * Gets a human-friendly string of the Team
 	 * @param team The Team of the piece
 	 * @return String representing the Team

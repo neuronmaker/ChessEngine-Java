@@ -75,6 +75,25 @@ public class Engine{
 	}
 
 	/**
+	 * Generates all moves that are legal for a given piece type (all pawns, rooks, or knights, etc.)
+	 * Only checks the pieces that belong to the same team as the indicated Piece Code
+	 * @see PieceCode
+	 * @param board     The current board state
+	 * @param pieceCode Which piece (and who's team) to check
+	 * @return a list of moves encoded as integers
+	 */
+	public static ArrayList<Integer> getLegalMoves(Board board, int pieceCode){
+		ArrayList<Integer> moves=new ArrayList<>();
+		long positions=board.searchPiece(pieceCode);//for each piece code
+		int index=Coord.maskToIndex(positions);
+		while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
+			moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(board,index));//get all moves for every one of these pieces
+			index=Coord.maskToNextIndex(positions,index);//find next location
+		}
+		return moves;
+	}
+
+	/**
 	 * Generates all possible moves, split them up between all threads.
 	 * Then returns the move with the best score after scoring to the desired depth.
 	 * @param board  Current state of the board for the search

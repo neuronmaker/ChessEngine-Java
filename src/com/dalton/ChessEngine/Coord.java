@@ -268,6 +268,16 @@ public class Coord{
 	}
 
 	/**
+	 * Takes a board square string (a1-h8) and converts it to an index (0-63)
+	 * Does not do any error checking
+	 * @param PGN String with the square name (a1-h8)
+	 * @return numerical index (0-63)
+	 */
+	public static int PGNToIndex(String PGN){
+		return XYToIndex(fromLetter(PGN.charAt(0)),PGN.charAt(0)-'0');//ASCII has digits arranged sequentially allowing this subtraction trick to work
+	}
+
+	/**
 	 * Gets the X coordinate in number-letter (PGN compatible) format
 	 * @return letter 'a' through 'h'
 	 */
@@ -300,6 +310,26 @@ public class Coord{
 	public static int fromLetter(char letter){
 		if(letter>='A' && letter<='Z') letter=(char) (letter+32);//convert to lower case if uppercase
 		return 1+(letter-'a');
+	}
+
+	/**
+	 * Takes a char with a numeral (0 through 9) and gets the integer value of that letter
+	 * Does <b>NO</b> error checking
+	 * @param letter the letter to convert
+	 * @return an integer from 0 through 9
+	 */
+	public static int fromNumeral(char letter){
+		return (letter-'0');//this works because ASCII digits are sequential, so we just need to offset with a subtraction
+	}
+
+	/**
+	 * Takes an int (0 through 9) and gets the char value of the last digit
+	 * Does <b>NO</b> error checking
+	 * @param numeral the letter to convert
+	 * @return an integer from 0 through 9
+	 */
+	public static char toNumeral(int numeral){
+		return (char) ('0'+numeral);
 	}
 
 	/**
