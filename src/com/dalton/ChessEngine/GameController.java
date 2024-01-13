@@ -142,7 +142,7 @@ public class GameController{
 		int givenLevel;
 		int playerEdit;//1 white, 2 black, 0 invalid
 		int i;//tracker of position
-		while(!input.equalsIgnoreCase("-save")){
+		while(!(input.equalsIgnoreCase("-save") || input.equalsIgnoreCase("save"))){
 			showConfig();
 			System.out.println("""
 				-save saves current config
