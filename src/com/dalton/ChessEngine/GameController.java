@@ -10,12 +10,13 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * The Game controller
  * @author Dalton Herrewynen
- * @version 0.2
+ * @version 0.3
  */
 public class GameController{
 	Scanner scanner;
 	Stack<BoardState> states;
 	Stack<BoardState> undoBuffer;
+	Stack<String> PGNMoves,PGNUndoBuffer;
 	Board board;
 	Engine engine;
 	boolean playerColor;
@@ -35,6 +36,8 @@ public class GameController{
 				case "-stat":
 					showBoard();
 					showConfig();
+					System.out.println("Show help with \"-help\" at the prompt");
+					break;
 				case "":
 				case "-help":
 				case "help":
@@ -45,12 +48,12 @@ public class GameController{
 				case "show":
 					showBoard();
 					break;
-				case "-settings":
-				case "-set":
+				case "-history":
+				case "history":
+					printHistory();
+					break;
 				case "-conf":
 				case "-config":
-				case "settings":
-				case "set":
 				case "conf":
 				case "config":
 					settings();
@@ -161,6 +164,42 @@ public class GameController{
 		return true;
 	}
 
+	/**
+	 * Applies an integer move to the Board and saves the state for undo functionality
+	 * @param move the integer move to apply
+	 */
+	public void makeMove(int move){
+		if(Move.isBlank(move)) return;//skip for blank moves
+		PGNUndoBuffer.clear();
+		undoBuffer.clear();//clear out the forward history, we're changing the past
+		PGNMoves.push(PGNConverter.getPGN(board,move));//push newly made moves to their stacks
+		states.push(board.saveState());
+		board.makeMove(move);
+	}
+
+	/** undo last move */
+	private void undo(){
+		if(undoBuffer.isEmpty()) return;//escape if no moves were made at this point
+		undoBuffer.push(board.saveState());
+		board.loadState(states.pop());
+		PGNUndoBuffer.push(PGNMoves.pop());//Same as above but no intermediate board variable for PGN strings
+		playerColor=!playerColor;//flip player
+		showBoard();
+	}
+
+	/** redo last undone move */
+	private void redo(){
+		if(undoBuffer.isEmpty()){
+			System.out.println("No moves to redo");
+			return;//escape on error
+		}
+		PGNMoves.push(PGNUndoBuffer.pop());
+		states.push(board.saveState());
+		board.loadState(undoBuffer.pop());
+		playerColor=!playerColor;//flip player back
+		showBoard();
+	}
+
 	/** settings screen */
 	private void settings(){
 		String input="";
@@ -227,29 +266,16 @@ public class GameController{
 		}
 	}
 
-	/** undo last move */
-	private void undo(){
-		undoBuffer.push(board.saveState());
-		board.loadState(states.pop());
-		playerColor=!playerColor;//flip player
-		showBoard();
-	}
-	/** redo last move */
-	private void redo(){
-		states.push(board.saveState());
-		board.loadState(undoBuffer.pop());
-		showBoard();
-	}
-
 	/** show help */
 	public void help(){
 		String helpText="""
-				Starting/Help Screen:
+				Help Screen:
 				Make a move by specifying a coordinate (a1, b2, etc) or with "pgn" and a move
 				Legal squares will be marked, castling is done by moving the King 2 spaces
 				End the move by typing the end coordinate (a1, b2, etc)
 				See this message again with -help
-				Enter settings with -settings
+				Enter configuration with -config
+				Print game history with -history
 				Make the AI generate a move with "-ai"
 				Command -quit, -undo, -redo are self explanatory
 				""";
@@ -272,18 +298,6 @@ public class GameController{
 			res+="Human/Terminal";
 		}
 		System.out.println(res);
-	}
-
-	/**
-	 * Applies an integer move to the Board and saves the state
-	 * @param move the integer move to apply
-	 */
-	public void makeMove(int move){
-		if(Move.isBlank(move)) return;//skip for blank moves
-		System.out.println("PGN: "+PGNConverter.getPGN(board,move)+" "+Move.describe(move));//print the PGN and description
-		undoBuffer.clear();//clear out the forward history, we're changing the past
-		states.push(board.saveState());
-		board.makeMove(move);
 	}
 
 	/** Prints the board on the screen */
@@ -326,10 +340,32 @@ public class GameController{
 		System.out.println(output);
 	}
 
+	/** prints the entire move history to the screen */
+	public void printHistory(){
+		String pgn;
+		int line=1;//track moves and lines
+		System.out.print("Game History");
+		for(int i=0; i<PGNMoves.size(); ++i){
+			if(i%2==0){
+				System.out.print("\n"+line+".");//print the line numbers for even moves (when WHITE moves)
+				++line;//then increase next line
+			}
+			pgn=PGNMoves.elementAt(i);
+			while(pgn.length()<4){
+				pgn+=' ';//pad the move until they are all the same length
+			}
+			System.out.print(" "+pgn);//print the move with padding
+		}
+		System.out.println("");//print a blank buffer line
+		showBoard();
+	}
+
 	/** Initializes the game */
 	public GameController(){
 		states=new Stack<>();
 		undoBuffer=new Stack<>();
+		PGNMoves=new Stack<>();
+		PGNUndoBuffer=new Stack<>();
 		board=new Board(Board.DEFAULT);
 		playerColor=WHITE;
 		isWhiteAI=false;
