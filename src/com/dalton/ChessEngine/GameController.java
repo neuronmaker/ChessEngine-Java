@@ -96,8 +96,30 @@ public class GameController{
 		int move=engine.getBestMove(new Board(board),AIColor,(playerColor==WHITE)?WhiteAILevel:BlackAILevel);//Tell the engine what maximum depth to search
 		System.out.println("Player: "+Types.getTeamString(playerColor)+": "+Move.describe(move));
 		if(Move.isBlank(move)) return false;//if no legal moves found, flag error
-		makeMove(move);//if a move was blank, make it
+		makeMove(move);//if a move was not blank, make it
 		return true;//flag success
+	}
+
+	/**
+	 * Attempt to get a pgn out of Algebraic notation
+	 * @param pgn Algebraic notation to be decoded
+	 * @return TRUE if pgn valid, FALSE otherwise
+	 */
+	public boolean makePGNMove(String pgn){
+		int i=0,move;
+		for(; i<pgn.length(); ++i){
+			//loop until I find a letter or a number, then trim the starting chars from there
+			if(pgn.charAt(i)!=' '){
+				pgn=pgn.substring(i);
+				break;
+			}
+		}
+		System.out.println("Src move: "+pgn);
+		move=PGNConverter.getMove(board,pgn,playerColor);
+		if(Move.isBlank(move)) return false;//if a blank move then there was an error
+		System.out.println("Move: "+Move.describe(move));
+		makeMove(move);
+		return true;
 	}
 
 	/**
@@ -106,6 +128,10 @@ public class GameController{
 	 * @return True if a move was made, False if not
 	 */
 	private boolean parseMove(String move){//TODO change this to return a move instead of making one
+		if(move.length()>3 && move.substring(0,3).equalsIgnoreCase("PGN")){//look for a switch phrase that tells us to instead decode algebraic notation
+			System.out.println("Making PGN move");
+			return makePGNMove(move.substring(3));//spaghetti code, just chops off the switch phrase "PGN"
+		}
 		ArrayList<Integer> legalMoves;
 		Coord start=new Coord(move),end=new Coord();
 		while(start.isSet()==UNSET || board.getSquare(start.getIndex())==Blank || PieceCode.decodeTeam(board.getSquare(start.getIndex()))!=playerColor){//loop until the player selects one of their pieces
@@ -219,7 +245,7 @@ public class GameController{
 	public void help(){
 		String helpText="""
 				Starting/Help Screen:
-				Make a move by specifying a coordinate (a1, b2, etc)
+				Make a move by specifying a coordinate (a1, b2, etc) or with "pgn" and a move
 				Legal squares will be marked, castling is done by moving the King 2 spaces
 				End the move by typing the end coordinate (a1, b2, etc)
 				See this message again with -help

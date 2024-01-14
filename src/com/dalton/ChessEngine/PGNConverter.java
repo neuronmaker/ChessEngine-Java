@@ -22,7 +22,6 @@ public class PGNConverter{
 	 */
 	public static int getMove(Board board, String PGN, boolean player){
 		ArrayList<Integer> moves;
-		String cleanToken="";
 		boolean capture=false;//is this move a capture
 		char pieceInitial='P';//default to a pawn
 		int dest=Coord.ERROR_INDEX;//default state is a failure unless we find a valid PGN token
@@ -44,7 +43,7 @@ public class PGNConverter{
 		}
 		if(dest==Coord.ERROR_INDEX) return Move.blankMove;//if we did not find a destination, early escape, save the cycles
 		//otherwise, we need to go and hunt for things like differentiation
-		for(; i>0; --i){//hunt for differentiations, piece initials, and captures
+		for(; i>=0; --i){//hunt for differentiations, piece initials, and captures
 			if(PGN.charAt(i)=='x') capture=true;//if you see an x it's for a capture
 			else if(isUppercase(PGN.charAt(i))){
 				pieceInitial=PGN.charAt(i);//pieces are noted by uppercase letters, if they're not pawns

@@ -274,7 +274,7 @@ public class Coord{
 	 * @return numerical index (0-63)
 	 */
 	public static int PGNToIndex(String PGN){
-		return XYToIndex(fromLetter(PGN.charAt(0)),PGN.charAt(0)-'0');//ASCII has digits arranged sequentially allowing this subtraction trick to work
+		return XYToIndex(fromLetter(PGN.charAt(0))-1,fromNumeral(PGN.charAt(1))-1);//ASCII has digits arranged sequentially allowing this subtraction trick to work
 	}
 
 	/**
