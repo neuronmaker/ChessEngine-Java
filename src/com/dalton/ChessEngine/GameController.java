@@ -280,6 +280,7 @@ public class GameController{
 	 */
 	public void makeMove(int move){
 		if(Move.isBlank(move)) return;//skip for blank moves
+		System.out.println("PGN: "+PGNConverter.getPGN(board,move)+" "+Move.describe(move));//print the PGN and description
 		undoBuffer.clear();//clear out the forward history, we're changing the past
 		states.push(board.saveState());
 		board.makeMove(move);

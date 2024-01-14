@@ -259,25 +259,6 @@ public class Coord{
 	}
 
 	/**
-	 * Turns an index into a pretty printed Coordinate
-	 * @param index the board index
-	 * @return a1->H8
-	 */
-	public static String indexToPGN(int index){
-		return Types.charUppercase(toLetter(indexToX(index)+1))+""+(indexToX(index)+1);
-	}
-
-	/**
-	 * Takes a board square string (a1-h8) and converts it to an index (0-63)
-	 * Does not do any error checking
-	 * @param PGN String with the square name (a1-h8)
-	 * @return numerical index (0-63)
-	 */
-	public static int PGNToIndex(String PGN){
-		return XYToIndex(fromLetter(PGN.charAt(0))-1,fromNumeral(PGN.charAt(1))-1);//ASCII has digits arranged sequentially allowing this subtraction trick to work
-	}
-
-	/**
 	 * Gets the X coordinate in number-letter (PGN compatible) format
 	 * @return letter 'a' through 'h'
 	 */
@@ -291,6 +272,25 @@ public class Coord{
 	 */
 	public char getYPGN(){
 		return (char) ('0'+getY()+1);
+	}
+
+	/**
+	 * Turns an index into a PGN compatible square
+	 * @param index the board index
+	 * @return a1->h8
+	 */
+	public static String indexToPGN(int index){
+		return toLetter(indexToX(index)+1)+""+toNumeral(indexToY(index)+1);
+	}
+
+	/**
+	 * Takes a board square string (a1-h8) and converts it to an index (0-63)
+	 * Does not do any error checking
+	 * @param PGN String with the square name (a1-h8)
+	 * @return numerical index (0-63)
+	 */
+	public static int PGNToIndex(String PGN){
+		return XYToIndex(fromLetter(PGN.charAt(0))-1,fromNumeral(PGN.charAt(1))-1);//ASCII has digits arranged sequentially allowing this subtraction trick to work
 	}
 
 	/**

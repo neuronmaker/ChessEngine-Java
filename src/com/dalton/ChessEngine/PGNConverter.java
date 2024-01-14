@@ -43,7 +43,7 @@ public class PGNConverter{
 		}
 		if(dest==Coord.ERROR_INDEX) return Move.blankMove;//if we did not find a destination, early escape, save the cycles
 		//otherwise, we need to go and hunt for things like differentiation
-		for(; i>=0; --i){//hunt for differentiations, piece initials, and captures
+		for(; i>=0; --i){//Continue from where we found the coordinate, hunt for differentiations, piece initials, and captures
 			if(PGN.charAt(i)=='x') capture=true;//if you see an x it's for a capture
 			else if(isUppercase(PGN.charAt(i))){
 				pieceInitial=PGN.charAt(i);//pieces are noted by uppercase letters, if they're not pawns
@@ -117,6 +117,34 @@ public class PGNConverter{
 				return moves.get(i);//if everything matches, return this move
 		}
 		return Move.blankMove;//if no move found, return a blank move
+	}
+
+	/**
+	 * Generates the PGN algebraic notation from an integer encoded move
+	 * Does no error checking
+	 * @param board The board state before the move (check for ambiguous moves)
+	 * @param move  Integer encoded move
+	 * @return A PGN encoded move String
+	 */
+	public static String getPGN(Board board, int move){
+		String pgn=Coord.indexToPGN(Move.getEndIndex(move));//set the destination square
+		if(Move.isCapture(move)) pgn="x"+pgn;//if a capture, then prepend an x before the coordinate
+		int code=Move.getPieceCode(move);
+		ArrayList<Integer> candidates=Engine.getLegalMoves(board,code);//find all the moves for this piece type
+		for(int i=0; i<candidates.size(); ++i){//search for ambiguous moves, then differentiate
+			if(Move.getEndIndex(candidates.get(i))==Move.getEndIndex(move) &&//if the move matches the destination
+				Move.getStartIndex(candidates.get(i))!=Move.getStartIndex(move)){//and does not have same start index
+				//check if the X matches or the Y matches, the put the opposite coordinate into the PGN
+				if(Coord.indexToX(Move.getStartIndex(candidates.get(i)))==Coord.indexToX(Move.getStartIndex(move))){
+					pgn=Coord.toNumeral(Coord.indexToY(Move.getStartIndex(move)))+pgn;//prepend the correct Y coordinate if the X matches
+				}else{//if the X coordinate does not match, then the Y must match
+					pgn=Coord.toLetter(Coord.indexToX(Move.getStartIndex(move)))+pgn;//prepend the correct X coordinate if the Y matches
+				}
+				break;//if we differentiated, then we are done
+			}
+		}
+		if(code==PieceCode.PawnW||code==PieceCode.PawnB) return pgn;//for pawns, omit the piece initial
+		else return charUppercase(PieceCode.decodeChar(code))+pgn;//prepend the uppercase piece initial and return the whole token
 	}
 
 	/**
