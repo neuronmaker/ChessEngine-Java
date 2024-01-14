@@ -33,3 +33,5 @@ bin/
 *.jar
 /Private/
 /Notes.md
+/lib/
+/build/

@@ -169,17 +169,19 @@ public class GameController{
 	 * @param move the integer move to apply
 	 */
 	public void makeMove(int move){
+		String pgn=PGNConverter.getPGN(board,move);
 		if(Move.isBlank(move)) return;//skip for blank moves
 		PGNUndoBuffer.clear();
 		undoBuffer.clear();//clear out the forward history, we're changing the past
-		PGNMoves.push(PGNConverter.getPGN(board,move));//push newly made moves to their stacks
+		PGNMoves.push(pgn);//push newly made moves to their stacks
 		states.push(board.saveState());
 		board.makeMove(move);
+		System.out.println("PGN: "+pgn);
 	}
 
 	/** undo last move */
 	private void undo(){
-		if(undoBuffer.isEmpty()) return;//escape if no moves were made at this point
+		if(states.isEmpty()) return;//escape if no moves were made at this point
 		undoBuffer.push(board.saveState());
 		board.loadState(states.pop());
 		PGNUndoBuffer.push(PGNMoves.pop());//Same as above but no intermediate board variable for PGN strings
