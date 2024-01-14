@@ -3,6 +3,7 @@ package com.dalton.ChessEngine;
 import java.util.ArrayList;
 
 import static com.dalton.ChessEngine.Types.*;
+
 /**
  * Decodes PGN notation and generates PGN notation from game history
  * Designed to be small and efficient
@@ -11,7 +12,8 @@ import static com.dalton.ChessEngine.Types.*;
  */
 public class PGNConverter{
 	/** What differentiations to use? Constants for making a switch more readable than a tree of if-else blocks */
-	private static final int noDiff=0,DiffX=1,DiffY=2;
+	private static final int noDiff=0, DiffX=1, DiffY=2;
+
 	/**
 	 * Calculates what move a PGN token refers to
 	 * Does not error check, function assumes the PGN token is valid
@@ -20,12 +22,12 @@ public class PGNConverter{
 	 * @param player WHITE or BLACK
 	 * @return The move which the algebraic notation encoded
 	 */
-	public static int getMove(Board board, String PGN, boolean player){
+	public static int getMove(Board board,String PGN,boolean player){
 		ArrayList<Integer> moves;
 		boolean capture=false;//is this move a capture
 		char pieceInitial='P';//default to a pawn
 		int dest=Coord.ERROR_INDEX;//default state is a failure unless we find a valid PGN token
-		int startX=Coord.ERROR_INDEX,startY=Coord.ERROR_INDEX;//set x and y to error unless needed down the line
+		int startX=Coord.ERROR_INDEX, startY=Coord.ERROR_INDEX;//set x and y to error unless needed down the line
 		int diffMethod=noDiff;//we assume no differentiation by default
 		switch(PGN){
 			case "0-0":
@@ -126,14 +128,14 @@ public class PGNConverter{
 	 * @param move  Integer encoded move
 	 * @return A PGN encoded move String
 	 */
-	public static String getPGN(Board board, int move){
+	public static String getPGN(Board board,int move){
 		String pgn=Coord.indexToPGN(Move.getEndIndex(move));//set the destination square
 		if(Move.isCapture(move)) pgn="x"+pgn;//if a capture, then prepend an x before the coordinate
 		int code=Move.getPieceCode(move);
 		ArrayList<Integer> candidates=Engine.getLegalMoves(board,code);//find all the moves for this piece type
 		for(int i=0; i<candidates.size(); ++i){//search for ambiguous moves, then differentiate
 			if(Move.getEndIndex(candidates.get(i))==Move.getEndIndex(move) &&//if the move matches the destination
-				Move.getStartIndex(candidates.get(i))!=Move.getStartIndex(move)){//and does not have same start index
+					Move.getStartIndex(candidates.get(i))!=Move.getStartIndex(move)){//and does not have same start index
 				//check if the X matches or the Y matches, the put the opposite coordinate into the PGN
 				if(Coord.indexToX(Move.getStartIndex(candidates.get(i)))==Coord.indexToX(Move.getStartIndex(move))){
 					pgn=Coord.toNumeral(Coord.indexToY(Move.getStartIndex(move)))+pgn;//prepend the correct Y coordinate if the X matches
@@ -153,7 +155,7 @@ public class PGNConverter{
 	 * @param team  WHITE or BLACK, Who goes next
 	 * @return A FEN formatted string
 	 */
-	public static String generateFEN(Board board, boolean team){
+	public static String generateFEN(Board board,boolean team){
 		return "";
 	}
 

@@ -1,4 +1,5 @@
 package com.dalton.ChessEngine;
+
 import java.util.Arrays;
 
 import static com.dalton.ChessEngine.PieceCode.*;

@@ -3,6 +3,7 @@ package com.dalton.ChessEngine;
 import java.util.ArrayList;
 
 import static com.dalton.ChessEngine.Types.*;
+
 /**
  * Holds the chess engine code
  * @author Dalton Herrewynen
@@ -43,7 +44,7 @@ public class Engine{
 		for(int i=0; i<PieceCode.PIECE_TYPES; ++i){
 			long positions=board.searchPiece(i);//for each piece code
 			int index=Coord.maskToIndex(positions);
-			int teamCoeff=(i%2==0)?1:-1;//if even, then make positive scores for WHITE, otherwise flip to negative for BLACK
+			int teamCoeff=(i%2==0)? 1 : -1;//if even, then make positive scores for WHITE, otherwise flip to negative for BLACK
 			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
 				score+=teamCoeff*PieceCode.pieceObj(i).pieceValue(board,index);//todo replace this with a function here that can be smarter
 				index=Coord.maskToNextIndex(positions,index);//find next location
@@ -77,12 +78,12 @@ public class Engine{
 	/**
 	 * Generates all moves that are legal for a given piece type (all pawns, rooks, or knights, etc.)
 	 * Only checks the pieces that belong to the same team as the indicated Piece Code
-	 * @see PieceCode
 	 * @param board     The current board state
 	 * @param pieceCode Which piece (and who's team) to check
 	 * @return a list of moves encoded as integers
+	 * @see PieceCode
 	 */
-	public static ArrayList<Integer> getLegalMoves(Board board, int pieceCode){
+	public static ArrayList<Integer> getLegalMoves(Board board,int pieceCode){
 		ArrayList<Integer> moves=new ArrayList<>();
 		long positions=board.searchPiece(pieceCode);//for each piece code
 		int index=Coord.maskToIndex(positions);
@@ -101,7 +102,7 @@ public class Engine{
 	 * @param depth  The desired maximum depth
 	 * @return Encoded move integer
 	 */
-	public int getBestMove(Board board, boolean player, int depth){
+	public int getBestMove(Board board,boolean player,int depth){
 		/*
 		Generate all moves we can make
 		score the move as is?
@@ -113,7 +114,7 @@ public class Engine{
 		depth=Math.min(depth,maxDepth);
 		ArrayList<Integer> legalMoves=getLegalMoves(board,player);
 		ArrayList<Integer> scores=new ArrayList<>();
-		int bestMove,bestScore;
+		int bestMove, bestScore;
 		Board movedBoard=new Board(Board.CLEAR);
 		if(legalMoves.isEmpty()) return Move.blank();//signal there are no moves if there are no moves found
 		for(int i=0; i<legalMoves.size(); ++i){
@@ -148,7 +149,7 @@ public class Engine{
 	 * @param player Pick best move for whom? (WHITE or BLACK)
 	 * @return Encoded move integer
 	 */
-	public int getBestMove(Board board, boolean player){
+	public int getBestMove(Board board,boolean player){
 		return getBestMove(board,player,maxDepth);
 	}
 
@@ -162,7 +163,7 @@ public class Engine{
 	 * @param beta  Lowest score found
 	 * @return integer score (higher score favors WHITE)
 	 */
-	public int minimax(Board board, boolean team, int depth, int alpha, int beta){
+	public int minimax(Board board,boolean team,int depth,int alpha,int beta){
 		/*
 		Get all moves after this move, store them
 		Score them

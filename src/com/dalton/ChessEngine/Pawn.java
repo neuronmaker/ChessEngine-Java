@@ -8,6 +8,7 @@ package com.dalton.ChessEngine;
 import java.util.ArrayList;
 
 import static com.dalton.ChessEngine.Types.*;
+
 /**
  * Class for the Pawn piece
  * @author Dalton Herrewynen
@@ -24,7 +25,7 @@ public class Pawn extends Piece{
 	 * @param team WHITE or BLACK
 	 */
 	public Pawn(boolean team){
-		super((team==WHITE) ? PieceCode.PawnW : PieceCode.PawnB);
+		super((team==WHITE)? PieceCode.PawnW : PieceCode.PawnB);
 	}
 
 	/**

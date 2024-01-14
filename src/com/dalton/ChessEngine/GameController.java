@@ -16,11 +16,11 @@ public class GameController{
 	Scanner scanner;
 	Stack<BoardState> states;
 	Stack<BoardState> undoBuffer;
-	Stack<String> PGNMoves,PGNUndoBuffer;
+	Stack<String> PGNMoves, PGNUndoBuffer;
 	Board board;
 	Engine engine;
 	boolean playerColor;
-	boolean isWhiteAI,isBlackAI;
+	boolean isWhiteAI, isBlackAI;
 	int WhiteAILevel;
 	int BlackAILevel;
 
@@ -72,7 +72,7 @@ public class GameController{
 					showBoard();
 					break;
 				default:
-					if((isWhiteAI&&playerColor==WHITE) || (isBlackAI&&playerColor==BLACK)){//if player is AI
+					if((isWhiteAI && playerColor==WHITE) || (isBlackAI && playerColor==BLACK)){//if player is AI
 						System.out.println("Player is AI, making a move");
 						if(makeAiMove(playerColor)==SUCCESS) playerColor=!playerColor;//attempt to make a move
 					}else{//if a human player
@@ -81,7 +81,7 @@ public class GameController{
 					showBoard();
 					break;
 			}
-			if((isWhiteAI&&playerColor==WHITE) || (isBlackAI&&playerColor==BLACK)){
+			if((isWhiteAI && playerColor==WHITE) || (isBlackAI && playerColor==BLACK)){
 				System.out.println("Player is AI, type any non-command to let computer move");
 			}
 			System.out.print(Types.getTeamString(playerColor)+" -> ");
@@ -96,7 +96,7 @@ public class GameController{
 	 */
 	public boolean makeAiMove(boolean AIColor){
 		System.out.println("Making AI move");
-		int move=engine.getBestMove(new Board(board),AIColor,(playerColor==WHITE)?WhiteAILevel:BlackAILevel);//Tell the engine what maximum depth to search
+		int move=engine.getBestMove(new Board(board),AIColor,(playerColor==WHITE) ? WhiteAILevel : BlackAILevel);//Tell the engine what maximum depth to search
 		System.out.println("Player: "+Types.getTeamString(playerColor)+": "+Move.describe(move));
 		if(Move.isBlank(move)) return false;//if no legal moves found, flag error
 		makeMove(move);//if a move was not blank, make it
@@ -109,7 +109,7 @@ public class GameController{
 	 * @return TRUE if pgn valid, FALSE otherwise
 	 */
 	public boolean makePGNMove(String pgn){
-		int i=0,move;
+		int i=0, move;
 		for(; i<pgn.length(); ++i){
 			//loop until I find a letter or a number, then trim the starting chars from there
 			if(pgn.charAt(i)!=' '){
@@ -136,7 +136,7 @@ public class GameController{
 			return makePGNMove(move.substring(3));//spaghetti code, just chops off the switch phrase "PGN"
 		}
 		ArrayList<Integer> legalMoves;
-		Coord start=new Coord(move),end=new Coord();
+		Coord start=new Coord(move), end=new Coord();
 		while(start.isSet()==UNSET || board.getSquare(start.getIndex())==Blank || PieceCode.decodeTeam(board.getSquare(start.getIndex()))!=playerColor){//loop until the player selects one of their pieces
 			if(move.equalsIgnoreCase("-show")) showBoard();
 			else System.out.println("invalid coordinate try again (type -abort to abort):");
@@ -210,12 +210,12 @@ public class GameController{
 		while(!(input.equalsIgnoreCase("-save") || input.equalsIgnoreCase("save"))){
 			showConfig();
 			System.out.println("""
-				-save saves current config
-				'white' or 'w' edits White
-				'black' or 'b' edits Black
-				Type 'human' or 'ai' to select human or ai and then the search depth with a number
-				Example: white ai 5
-				""");
+					-save saves current config
+					'white' or 'w' edits White
+					'black' or 'b' edits Black
+					Type 'human' or 'ai' to select human or ai and then the search depth with a number
+					Example: white ai 5
+					""");
 			System.out.print("-> ");
 			input=scanner.nextLine().toLowerCase();//don't bother with case
 			switch(input.substring(0,1)){
@@ -336,7 +336,7 @@ public class GameController{
 			}
 			output.append(" ").append(y+1);//end numbers
 		}
-		output.append("\n    A   B   C   D   E   F   G   H\n   White Side"   );
+		output.append("\n    A   B   C   D   E   F   G   H\n   White Side");
 		System.out.println(output);
 	}
 
@@ -356,7 +356,7 @@ public class GameController{
 			}
 			System.out.print(" "+pgn);//print the move with padding
 		}
-		System.out.println("");//print a blank buffer line
+		System.out.println();//print a blank buffer line
 		showBoard();
 	}
 

@@ -84,6 +84,7 @@ public class King extends Piece{
 			0b0101000001110000000000000000000000000000000000000000000000000000L,
 			0b1010000011100000000000000000000000000000000000000000000000000000L,
 			0b0100000011000000000000000000000000000000000000000000000000000000L,};
+
 	/**
 	 * Only constructor requires the setting of team (color)
 	 * @param team which side is this piece going to be on
@@ -138,13 +139,13 @@ public class King extends Piece{
 			int rookPos=Coord.XYToIndex(0,Coord.indexToY(position));//get the rook for this side
 			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(qSideCastleMask,0,Coord.indexToY(position)))//use shifting of the mask to make it work for WHITE and BLACK
 					&& board.hasNotMoved(rookPos)){//Must have blank line between the King and Rook and both must be unmoved
-				moves.add(Move.encodeCastle(Move.qSideCastle, team));//We can castle Queen side
+				moves.add(Move.encodeCastle(Move.qSideCastle,team));//We can castle Queen side
 			}
 			//Checking the kingside
 			rookPos=Coord.XYToIndex(BOARD_SIZE-1,Coord.indexToY(position));//get the other rook for this side
 			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(kSideCastleMask,0,Coord.indexToY(position)))
 					&& board.hasNotMoved(rookPos)){//Must have blank line between the King and Rook and both must be unmoved
-				moves.add(Move.encodeCastle(Move.kSideCastle, team));//We can castle King side
+				moves.add(Move.encodeCastle(Move.kSideCastle,team));//We can castle King side
 			}
 		}
 		return moves;

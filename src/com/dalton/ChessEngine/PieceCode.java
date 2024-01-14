@@ -38,6 +38,7 @@ public abstract class PieceCode{
 	public static boolean decodeTeam(int code){
 		return (code%2==0);//I laid out all BLACK pieces on odds and WHITE pieces on evens
 	}
+
 	/**
 	 * Gets team from the piece code
 	 * @param code Piece code
@@ -104,8 +105,8 @@ public abstract class PieceCode{
 	 * @param team   Override the team (WHITE or BLACK)
 	 * @return Integer Piece Code
 	 */
-	public static int encodeChar(char letter, boolean team){
-		int offset=(team==WHITE)?0:1;//offset for later user
+	public static int encodeChar(char letter,boolean team){
+		int offset=(team==WHITE)? 0 : 1;//offset for later user
 		return switch(charUppercase(letter)){//force a known case
 			case 'P' -> PawnW+offset;//use the offset to encode the team as calculated earlier
 			case 'R' -> RookW+offset;
