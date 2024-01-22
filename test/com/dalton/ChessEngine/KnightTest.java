@@ -30,8 +30,7 @@ public class KnightTest{
 			{2,1},{1,2},{2,-1},{1,-2}};   //right half
 	/** Constants for testing moves on and off the board */
 	public static final int minOnBoard=2, maxOnBoard=5;
-	Board board;
-	BoardState blankState;
+	Board board, blankState;
 	ArrayList<Integer> gotMoves, filteredMoves;
 	ArrayList<Coord> expectedCoords, gotCoords;//these are the destination coord
 

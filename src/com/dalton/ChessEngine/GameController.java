@@ -14,8 +14,8 @@ import static com.dalton.ChessEngine.Types.*;
  */
 public class GameController{
 	Scanner scanner;
-	Stack<BoardState> states;
-	Stack<BoardState> undoBuffer;
+	Stack<Board> states;
+	Stack<Board> undoBuffer;
 	Stack<String> PGNMoves, PGNUndoBuffer;
 	Board board;
 	Engine engine;

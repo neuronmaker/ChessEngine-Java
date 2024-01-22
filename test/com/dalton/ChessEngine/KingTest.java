@@ -39,8 +39,7 @@ public class KingTest{
 	private static final int minOnBoard=1, maxOnBoard=6;
 	/** Some arbitrary move that cannot contain a castle move */
 	private static final int bogusNonCastleMove=Move.blank();
-	Board board;
-	BoardState blankState;
+	Board board, blankState;
 	ArrayList<Integer> gotMoves, filteredMoves;
 	ArrayList<Coord> expectedCoords, gotCoords;//these are the destination coord
 

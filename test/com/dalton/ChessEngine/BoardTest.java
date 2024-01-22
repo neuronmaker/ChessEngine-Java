@@ -24,10 +24,10 @@ public class BoardTest{
 	Board board;//normal game board
 	Board blankBoard;//blank
 	Board customBoard;//specially crafted to show faults in setters and getters
+	Board blankState, defaultState;
 	int pawnRowNum, knightRowNum, rookRowNum;
 	Coord KingPos, QueenPos;
 	Piece expected, got;
-	BoardState blankState, defaultState;
 
 	@Before
 	public void setupBoard(){
@@ -187,7 +187,7 @@ public class BoardTest{
 	/** Test the ability to save and load a board state */
 	@Test
 	public void testLoadSaveState(){
-		BoardState state=board.saveState();
+		Board state=board.saveState();
 		blankBoard.loadState(state);
 		for(int i=0; i<TOTAL_SQUARES; ++i){//Loop over all squares
 			assertEquals("Tile: "+Coord.orderedPair(i)+" pieces should match after load",board.getSquare(i),blankBoard.getSquare(i));

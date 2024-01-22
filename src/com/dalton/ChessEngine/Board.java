@@ -8,7 +8,7 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * The game board, stored as a bitboard
  * @author Dalton Herrewynen
- * @version 2
+ * @version 2.1
  */
 public class Board{
 	/** These are ints to make use of fast Switch statements possible */
@@ -30,16 +30,6 @@ public class Board{
 		this.unmoved=board.unmoved;
 		this.EnPassant=board.getEnPassant();
 		System.arraycopy(board.pieces,0,this.pieces,0,PIECE_TYPES);
-	}
-
-	/**
-	 * Creates a Board class from a BoardState.
-	 * @param state The BoardState to copy
-	 */
-	public Board(BoardState state){
-		this.unmoved=state.unmoved();
-		this.EnPassant=state.EnPassant();
-		System.arraycopy(state.pieces(),0,this.pieces,0,PIECE_TYPES);
 	}
 
 	/** Default constructor creates a default board */
@@ -314,26 +304,16 @@ public class Board{
 	}
 
 	/**
-	 * Saves this board to state to a BoardState Structure
-	 * @return The state of the Board as a BoardState
+	 * Copies the Board to a new Board instance
+	 * @return A copy of this Board
 	 */
-	public BoardState saveState(){
-		return new BoardState(unmoved,EnPassant,Arrays.copyOf(pieces,PIECE_TYPES));
+	public Board saveState(){
+		return new Board(this);
 	}
 
 	/**
-	 * Loads the board state into this Board
-	 * @param state The state of the Board as a BoardState
-	 */
-	public void loadState(BoardState state){
-		unmoved=state.unmoved();
-		EnPassant=state.EnPassant();
-		pieces=Arrays.copyOf(state.pieces(),PIECE_TYPES);
-	}
-
-	/**
-	 * Loads the board state into this Board
-	 * @param state The state of the Board as a BoardState
+	 * Loads an instance of a Board into this Board instance
+	 * @param state A Board instance
 	 */
 	public void loadState(Board state){
 		unmoved=state.unmoved;
