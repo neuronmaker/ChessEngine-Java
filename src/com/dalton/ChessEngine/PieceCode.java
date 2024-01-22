@@ -23,8 +23,8 @@ public abstract class PieceCode{
 	 * Piece codes to make arrays easier to use, Pieces named with color abbreviation,
 	 * positions chosen so a bit flip can flip teams, even WHITE, odd BLACK, Blank is <b>ANY</b> invalid number
 	 */
-	public static final int PawnW=0, PawnB=1, RookW=2, RookB=3, KnightW=4, KnightB=5, BishopW=6, BishopB=7,
-			QueenW=8, QueenB=9, KingW=10, KingB=11, PIECE_TYPES=12, Blank=PIECE_TYPES;//Blank is ANY invalid code
+	public static final int WHITE_OFFSET=0, BLACK_OFFSET=1,PawnW=0, PawnB=1, RookW=2, RookB=3, KnightW=4, KnightB=5, BishopW=6, BishopB=7,
+			QueenW=8, QueenB=9, KingW=10, KingB=11, PIECE_TYPES=12, Blank=PIECE_TYPES;//Blank is ANY invalid code, this one is convenient
 	/** Used with the Piece codes to form a sort of table */
 	private static final Piece[] PIECE_OBJECT={new Pawn(WHITE),new Pawn(BLACK),new Rook(WHITE),new Rook(BLACK),
 			new Knight(WHITE),new Knight(BLACK),new Bishop(WHITE),new Bishop(BLACK),new Queen(WHITE),new Queen(BLACK),
@@ -71,6 +71,11 @@ public abstract class PieceCode{
 		};
 	}
 
+	/**
+	 * Gets the Piece Object that corresponds to a Piece Code integer
+	 * @param code The integer Piece Code
+	 * @return Reference to the correct Piece object or null
+	 */
 	public static Piece pieceObj(int code){
 		if(code<0 || code>=PIECE_TYPES) return null;
 		return PIECE_OBJECT[code];

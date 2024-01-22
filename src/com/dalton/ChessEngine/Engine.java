@@ -7,7 +7,7 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * Holds the chess engine code
  * @author Dalton Herrewynen
- * @version 0.2
+ * @version 0.3
  */
 public class Engine{
 	private int maxDepth;
@@ -15,23 +15,36 @@ public class Engine{
 	private Board[] boardArr;
 
 	/**
-	 * Loads default values and does the pre-computations for scoring and move generation
-	 * @param threads The initial number of threads to aim for
-	 * @param depth   The default maximum depth
+	 * Checks if the player is in check
+	 * @param board Current board state
+	 * @param team  WHITE or BLACK
+	 * @return True if selected player is in check, False if not
 	 */
-	public Engine(int threads,int depth){
-		maxDepth=depth;
-		maxThreads=threads;
-		boardArr=new Board[maxDepth];
-		for(int i=0; i<maxDepth; ++i){//pre-allocate the space for minimax boards
-			boardArr[i]=new Board(Board.CLEAR);
+	public static boolean inCheck(Board board, boolean team){
+		int kingpos=Coord.maskToIndex(board.searchPiece((team==WHITE)?PieceCode.KingW:PieceCode.KingB));
+		ArrayList<Integer> moves=getLegalMoves(board,!team);//get moves that the other guy can make
+		for(int i=0; i<moves.size(); ++i){//search for a move which would capture the king
+			if(Move.isCapture(moves.get(i)) && Move.getEndIndex(moves.get(i))==kingpos) return true;//if they can capture, then we are in check
 		}
-		/*
-		load/calculate score table
-		pre-calculate attack squares
-		create threads
-		pause threads
-		 */
+		return false;//if no moves that capture the king, then not in check
+	}
+
+	/**
+	 * Checks if the player is checkmated (no way to save King from capture)
+	 * @param board Current board state
+	 * @param team  WHITE or BLACK
+	 * @return True if checkmated, False if not
+	 */
+	public static boolean isCheckmate(Board board, boolean team){
+		if(!inCheck(board,team)) return false;//not in check means not possible to check mate
+		ArrayList<Integer> moves=getLegalMoves(board,team);//get moves that this team can make
+		Board nextBoard=new Board(Board.CLEAR);
+		for(int i=0; i<moves.size(); ++i){//search for a move which would get out of check
+			nextBoard.loadState(board);
+			nextBoard.makeMove(moves.get(i));//simulate the moves
+			if(!inCheck(nextBoard,team)) return false;//if there is a move which gets out of check, then not a mate
+		}
+		return true;//if no saving moves found, then it's checkmate
 	}
 
 	/**
@@ -40,13 +53,21 @@ public class Engine{
 	 * @return A score from WHITE player's perspective
 	 */
 	public static int score(Board board){
+		if(isCheckmate(board,WHITE)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
+		if(isCheckmate(board,BLACK)) return Integer.MIN_VALUE;//if BLACK is checkmated, Max score favors WHITE
 		int score=0;
 		for(int i=0; i<PieceCode.PIECE_TYPES; ++i){
-			long positions=board.searchPiece(i);//for each piece code
+			long positions=board.searchPiece(i);//Search WHITE first
 			int index=Coord.maskToIndex(positions);
-			int teamCoeff=(i%2==0)? 1 : -1;//if even, then make positive scores for WHITE, otherwise flip to negative for BLACK
 			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-				score+=teamCoeff*PieceCode.pieceObj(i).pieceValue(board,index);//todo replace this with a function here that can be smarter
+				score+=PieceCode.pieceObj(i).pieceValue(board,index);//todo replace this with a function here that can be smarter
+				index=Coord.maskToNextIndex(positions,index);//find next location
+			}
+			++i;//flip to BLACK
+			positions=board.searchPiece(i);//Same Piece but now BLACK
+			index=Coord.maskToIndex(positions);
+			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
+				score-=PieceCode.pieceObj(i).pieceValue(board,index);
 				index=Coord.maskToNextIndex(positions,index);//find next location
 			}
 		}
@@ -61,9 +82,7 @@ public class Engine{
 	 */
 	public static ArrayList<Integer> getLegalMoves(Board board,boolean team){
 		ArrayList<Integer> moves=new ArrayList<>();
-		int i;
-		if(team==WHITE) i=0;//WHITE starts at 0
-		else i=1;//advance by 1 if BLACK
+		int i=(team==WHITE)? PieceCode.WHITE_OFFSET : PieceCode.BLACK_OFFSET;
 		for(; i<PieceCode.PIECE_TYPES; i+=2){
 			long positions=board.searchPiece(i);//for each piece code
 			int index=Coord.maskToIndex(positions);
@@ -202,5 +221,25 @@ public class Engine{
 			}
 		}
 		return bestScore;
+	}
+
+	/**
+	 * Loads default values and does the pre-computations for scoring and move generation
+	 * @param threads The initial number of threads to aim for
+	 * @param depth   The default maximum depth
+	 */
+	public Engine(int threads,int depth){
+		maxDepth=depth;
+		maxThreads=threads;
+		boardArr=new Board[maxDepth];
+		for(int i=0; i<maxDepth; ++i){//pre-allocate the space for minimax boards
+			boardArr[i]=new Board(Board.CLEAR);
+		}
+		/*
+		load/calculate score table
+		pre-calculate attack squares
+		create threads
+		pause threads
+		 */
 	}
 }

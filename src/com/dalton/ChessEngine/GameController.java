@@ -97,7 +97,7 @@ public class GameController{
 	public boolean makeAiMove(boolean AIColor){
 		System.out.println("Making AI move");
 		int move=engine.getBestMove(new Board(board),AIColor,(playerColor==WHITE) ? WhiteAILevel : BlackAILevel);//Tell the engine what maximum depth to search
-		System.out.println("Player: "+Types.getTeamString(playerColor)+": "+Move.describe(move));
+		System.out.println("Player: "+Types.getTeamString(playerColor)+": "+PGNConverter.getPGN(board,move)+": "+Move.describe(move));
 		if(Move.isBlank(move)) return false;//if no legal moves found, flag error
 		makeMove(move);//if a move was not blank, make it
 		return true;//flag success
@@ -117,7 +117,6 @@ public class GameController{
 				break;
 			}
 		}
-		System.out.println("Src move: "+pgn);
 		move=PGNConverter.getMove(board,pgn,playerColor);
 		if(Move.isBlank(move)) return false;//if a blank move then there was an error
 		System.out.println("Move: "+Move.describe(move));

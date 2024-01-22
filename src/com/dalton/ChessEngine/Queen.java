@@ -42,7 +42,7 @@ public class Queen extends Piece{
 	//TODO Complete pieceValue()
 	@Override
 	public int pieceValue(Board board,int position){
-		int score=1000;
+		int score=2000;
 		ArrayList<Integer> moves=getMoves(board,position);
 		score+=moves.size()*15;
 		return score;
