@@ -76,7 +76,7 @@ public abstract class Types{// class can't be instantiated, but it has static he
 	public static String maskString(long mask){
 		StringBuilder representation=new StringBuilder();
 		for(int i=63; i>=0; --i){
-			representation.append(((mask & (1L << i))==0) ? '0' : '1');// shift and test for equality with 0
+			representation.append(((mask & (1L << i))==0)? '0' : '1');// shift and test for equality with 0
 		}
 		return representation.toString();
 	}

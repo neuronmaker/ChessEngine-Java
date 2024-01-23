@@ -20,7 +20,7 @@ public class Rook extends Piece{
 	 * @param team WHITE or BLACK
 	 */
 	public Rook(boolean team){
-		super((team==WHITE) ? PieceCode.RookW : PieceCode.RookB);
+		super((team==WHITE)? PieceCode.RookW : PieceCode.RookB);
 	}
 
 	/**

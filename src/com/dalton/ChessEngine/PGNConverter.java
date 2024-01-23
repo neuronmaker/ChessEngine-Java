@@ -43,7 +43,7 @@ public class PGNConverter{
 				break;//break the loop, we found what we are looking for
 			}
 		}
-		if(dest==Coord.ERROR_INDEX) return Move.blankMove;//if we did not find a destination, early escape, save the cycles
+		if(dest==Coord.ERROR_INDEX) return Move.blankMove;//if we did not find a destination, early escape
 		//otherwise, we need to go and hunt for things like differentiation
 		for(; i>=0; --i){//Continue from where we found the coordinate, hunt for differentiations, piece initials, and captures
 			if(PGN.charAt(i)=='x') capture=true;//if you see an x it's for a capture
@@ -146,7 +146,7 @@ public class PGNConverter{
 			}
 		}
 		if(code==PieceCode.PawnW||code==PieceCode.PawnB) return pgn;//for pawns, omit the piece initial
-		else return charUppercase(PieceCode.decodeChar(code))+pgn;//prepend the uppercase piece initial and return the whole token
+		else return charUppercase(PieceCode.decodeChar(code))+pgn;//prepend the uppercase piece initial, return the token
 	}
 
 	/**

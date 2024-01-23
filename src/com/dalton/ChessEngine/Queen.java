@@ -21,7 +21,7 @@ public class Queen extends Piece{
 	 * @param team WHITE or BLACK
 	 */
 	public Queen(boolean team){
-		super((team==WHITE) ? QueenW : QueenB);
+		super((team==WHITE)? QueenW : QueenB);
 	}
 
 	/**

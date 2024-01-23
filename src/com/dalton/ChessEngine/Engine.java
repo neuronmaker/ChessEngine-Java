@@ -20,11 +20,12 @@ public class Engine{
 	 * @param team  WHITE or BLACK
 	 * @return True if selected player is in check, False if not
 	 */
-	public static boolean inCheck(Board board, boolean team){
-		int kingpos=Coord.maskToIndex(board.searchPiece((team==WHITE)?PieceCode.KingW:PieceCode.KingB));
+	public static boolean inCheck(Board board,boolean team){
+		int kingpos=Coord.maskToIndex(board.searchPiece((team==WHITE)? PieceCode.KingW : PieceCode.KingB));
 		ArrayList<Integer> moves=getLegalMoves(board,!team);//get moves that the other guy can make
 		for(int i=0; i<moves.size(); ++i){//search for a move which would capture the king
-			if(Move.isCapture(moves.get(i)) && Move.getEndIndex(moves.get(i))==kingpos) return true;//if they can capture, then we are in check
+			if(Move.isCapture(moves.get(i)) && Move.getEndIndex(moves.get(i))==kingpos)
+				return true;//if they can capture, then we are in check
 		}
 		return false;//if no moves that capture the king, then not in check
 	}
@@ -35,7 +36,7 @@ public class Engine{
 	 * @param team  WHITE or BLACK
 	 * @return True if checkmated, False if not
 	 */
-	public static boolean isCheckmate(Board board, boolean team){
+	public static boolean isCheckmate(Board board,boolean team){
 		if(!inCheck(board,team)) return false;//not in check means not possible to check mate
 		ArrayList<Integer> moves=getLegalMoves(board,team);//get moves that this team can make
 		Board nextBoard=new Board(Board.CLEAR);

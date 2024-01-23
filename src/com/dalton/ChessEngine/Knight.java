@@ -87,7 +87,7 @@ public class Knight extends Piece{
 	 * @param team which side is this piece going to be on
 	 */
 	public Knight(boolean team){
-		super((team==WHITE) ? PieceCode.KnightW : PieceCode.KnightB);
+		super((team==WHITE)? PieceCode.KnightW : PieceCode.KnightB);
 	}
 
 	/**

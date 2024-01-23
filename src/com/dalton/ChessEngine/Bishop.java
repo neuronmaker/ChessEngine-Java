@@ -19,7 +19,7 @@ public class Bishop extends Piece{
 	 * @param team WHITE or BLACK
 	 */
 	public Bishop(boolean team){
-		super((team==Types.WHITE) ? PieceCode.BishopW : PieceCode.BishopB);
+		super((team==Types.WHITE)? PieceCode.BishopW : PieceCode.BishopB);
 	}
 
 	/**

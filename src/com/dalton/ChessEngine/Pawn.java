@@ -71,7 +71,7 @@ public class Pawn extends Piece{
 	 * @return -1 or +1
 	 */
 	private int moveYDirection(boolean team){
-		return (team==WHITE) ? 1 : -1;//move forward if WHITE, backwards if BLACK
+		return (team==WHITE)? 1 : -1;//move forward if WHITE, backwards if BLACK
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class Pawn extends Piece{
 	@Override
 	public ArrayList<Integer> getMoves(Board board,int position){
 		ArrayList<Integer> moves=new ArrayList<>();
-		int dy=(team==WHITE) ? 1 : -1;//move forward if WHITE, backwards if BLACK
+		int dy=(team==WHITE)? 1 : -1;//move forward if WHITE, backwards if BLACK
 		long diagLeftMask=(1L << Coord.shiftIndex(position,-1,dy)),//diagonally to the left, purely for readability, generates the bitmask for the square
 				diagRightMask=(1L << Coord.shiftIndex(position,1,dy));//diagonally to the right, purely for readability, generates the bitmask for the square
 		long enemies=board.alliedPieceMask(!team);//get all squares controlled by the enemy
