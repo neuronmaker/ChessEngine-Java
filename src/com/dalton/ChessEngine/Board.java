@@ -14,7 +14,7 @@ public class Board{
 	/** These are ints to make use of fast Switch statements possible */
 	public static final int CLEAR=1, DEFAULT=0;
 	/** To reduce magic numbers */
-	public static final int KingXCoord=4;
+	public static final int KingX=4, QueenX=3, QRookX=0, KRookX=7;
 	/** Squares where pieces have not yet moved */
 	private long unmoved;
 	/** Squares with pawns vulnerable to EnPassant */
@@ -168,7 +168,7 @@ public class Board{
 		for(int i=0; i<PIECE_TYPES; ++i){
 			if((pieces[i] & mask)!=0) return i;//see why I used final ints now
 		}
-		return Blank;
+		return Blank;//if no pieces found, return a blank
 	}
 
 	/**
@@ -216,27 +216,6 @@ public class Board{
 	 */
 	public long searchPiece(int pieceCode){
 		return pieces[pieceCode];
-	}
-
-	/**
-	 * Rotates the current Board object 180 degrees
-	 * @return A copy of the Board object that is rotated 180 degrees
-	 */
-	public Board getRotatedBoard(){
-		Board rotatedBoard=new Board(CLEAR);
-		for(int i=0; i<PIECE_TYPES; ++i){//for each piece
-			rotatedBoard.pieces[i]=reverseMask(pieces[i]);
-		}
-		rotatedBoard.unmoved=reverseMask(unmoved);
-		return rotatedBoard;
-	}
-
-	/** Rotates the current Board object 180 degrees */
-	public void rotateBoard(){
-		for(int i=0; i<PIECE_TYPES; ++i){//for each piece
-			pieces[i]=reverseMask(pieces[i]);
-		}
-		unmoved=reverseMask(unmoved);
 	}
 
 	/**
@@ -347,7 +326,7 @@ public class Board{
 	 */
 	public long alliedPieceMask(boolean team){
 		long posMask=0;
-		int i=(team) ? 0 : 1;//skip one if BLACK
+		int i=(team)? 0 : 1;//skip one if BLACK
 		for(; i<PIECE_TYPES; i+=2){//move up by 2 so we skip enemy pieces
 			posMask|=pieces[i];//bitwise or will add all allied pieces masks
 		}

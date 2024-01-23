@@ -145,9 +145,9 @@ public abstract class Move{//class can't be instantiated, but it has static help
 		}
 		return switch(castleCode){
 			case qSideCastle ->
-					encode(qSideCastle,kingCode,Coord.XYToIndex(Board.KingXCoord,posY),Coord.XYToIndex(Board.KingXCoord-2,posY));//king position and the rook at far left of board, top or bottom
+					encode(qSideCastle,kingCode,Coord.XYToIndex(Board.KingX,posY),Coord.XYToIndex(Board.KingX-2,posY));//king position and the rook at far left of board, top or bottom
 			case kSideCastle ->
-					encode(kSideCastle,kingCode,Coord.XYToIndex(Board.KingXCoord,posY),Coord.XYToIndex(Board.KingXCoord+2,posY));//king position and the rook at far right of board, top or bottom
+					encode(kSideCastle,kingCode,Coord.XYToIndex(Board.KingX,posY),Coord.XYToIndex(Board.KingX+2,posY));//king position and the rook at far right of board, top or bottom
 			default -> blank();//if a fault, flag blank
 		};
 	}

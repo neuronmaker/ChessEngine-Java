@@ -130,8 +130,10 @@ public class King extends Piece{
 			int destIndex=Coord.shiftIndex(position,dir[0],dir[1]);
 			if(!Coord.isShiftValid(position,dir[0],dir[1]))
 				continue;//We can only move the King to squares that exist and won't cause a check
-			if(0!=(blanks & (1L << destIndex))) moves.add(Move.encodeNormal(this.pieceCode,position,destIndex));//if blank, then just move
-			else if(0!=(enemies & (1L << destIndex))) moves.add(Move.encode(Move.capture,this.pieceCode,position,destIndex));//Only capture the other team
+			if(0!=(blanks & (1L << destIndex)))
+				moves.add(Move.encodeNormal(this.pieceCode,position,destIndex));//if blank, then just move
+			else if(0!=(enemies & (1L << destIndex)))
+				moves.add(Move.encode(Move.capture,this.pieceCode,position,destIndex));//Only capture the other team
 		}
 		//Castling moves
 		if(board.hasNotMoved(position) && !isInCheck(board,position)){//no castling if moved or in check
@@ -143,7 +145,7 @@ public class King extends Piece{
 			}
 			//Checking the kingside
 			rookPos=Coord.XYToIndex(BOARD_SIZE-1,Coord.indexToY(position));//get the other rook for this side
-			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(kSideCastleMask,0,Coord.indexToY(position)))
+			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(kSideCastleMask,0,Coord.indexToY(position)))//as above, if anything falls into the mask, do not castle
 					&& board.hasNotMoved(rookPos)){//Must have blank line between the King and Rook and both must be unmoved
 				moves.add(Move.encodeCastle(Move.kSideCastle,team));//We can castle King side
 			}
@@ -159,7 +161,7 @@ public class King extends Piece{
 	 */
 	public boolean isInCheck(Board board,int position){//todo change this to use an attacking mask for speed
 		//Check if any enemy pieces can can attack the King's position
-		for(int piece=(!team) ? 0 : 1; piece<PieceCode.KingW; piece+=2){//get all pieces for other team by integer code
+		for(int piece=(!team)? 0 : 1; piece<PieceCode.KingW; piece+=2){//get all pieces for other team by integer code
 			int pieceIndex=Coord.maskToIndex(board.searchPiece(piece));//locate the piece
 			while(pieceIndex!=Coord.ERROR_INDEX){//while there is a piece to find
 				ArrayList<Integer> enemyMoves=PieceCode.pieceObj(piece).getMoves(board,pieceIndex);//Get the legal moves from the enemy piece

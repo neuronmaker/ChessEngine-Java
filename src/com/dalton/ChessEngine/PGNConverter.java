@@ -8,7 +8,7 @@ import static com.dalton.ChessEngine.Types.*;
  * Decodes PGN notation and generates PGN notation from game history
  * Designed to be small and efficient
  * @author Dalton Herrewynen
- * @version 0.1
+ * @version 0.2
  */
 public class PGNConverter{
 	/** What differentiations to use? Constants for making a switch more readable than a tree of if-else blocks */
@@ -74,7 +74,7 @@ public class PGNConverter{
 	 * @param isCapture Should we be looking for a capture move?
 	 * @return An encoded move integer, either the matching move or a blank move if nothing found
 	 */
-	public static int searchMovesNoDiff(ArrayList<Integer> moves,int dest,boolean isCapture){
+	private static int searchMovesNoDiff(ArrayList<Integer> moves,int dest,boolean isCapture){
 		//search for the moves
 		for(int i=0; i<moves.size(); ++i){
 			if(Move.getEndIndex(moves.get(i))==dest && Move.isCapture(moves.get(i))==isCapture)
@@ -91,7 +91,7 @@ public class PGNConverter{
 	 * @param isCapture Should we be looking for a capture move?
 	 * @return An encoded move integer, either the matching move or a blank move if nothing found
 	 */
-	public static int searchMovesDiffX(ArrayList<Integer> moves,int dest,int startX,boolean isCapture){
+	private static int searchMovesDiffX(ArrayList<Integer> moves,int dest,int startX,boolean isCapture){
 		//search for the moves
 		for(int i=0; i<moves.size(); ++i){
 			if(Move.getEndIndex(moves.get(i))==dest && //match destination
@@ -110,7 +110,7 @@ public class PGNConverter{
 	 * @param isCapture Should we be looking for a capture move?
 	 * @return An encoded move integer, either the matching move or a blank move if nothing found
 	 */
-	public static int searchMovesDiffY(ArrayList<Integer> moves,int dest,int startY,boolean isCapture){
+	private static int searchMovesDiffY(ArrayList<Integer> moves,int dest,int startY,boolean isCapture){
 		//search for the moves
 		for(int i=0; i<moves.size(); ++i){
 			if(Move.getEndIndex(moves.get(i))==dest && //match destination
@@ -151,12 +151,71 @@ public class PGNConverter{
 
 	/**
 	 * Generates a FEN string from the board state
-	 * @param board The board in its current state
-	 * @param team  WHITE or BLACK, Who goes next
+	 * @param board     The board in its current state
+	 * @param team      WHITE or BLACK, Who goes next
+	 * @param halfClock The halfMove clock (50 means a draw)
+	 * @param fullMoves How many turns have elapsed
 	 * @return A FEN formatted string
 	 */
-	public static String generateFEN(Board board,boolean team){
-		return "";
+	public static String generateFEN(Board board,boolean team,int halfClock,int fullMoves){
+		int empty=0;//no empty spaces yet
+		long EnPassant=board.getEnPassant();
+		boolean foundACastle=false;//assume no castles found until they are
+		char piece;
+		String fen="";
+		//piece locations
+		for(int y=BOARD_SIZE-1; y>=0; --y){//top to bottom (8th rank, 7th row down to 0th row)
+			for(int x=0; x<BOARD_SIZE; ++x){//sweep across the rank
+				piece=PieceCode.decodeChar(board.getSquare(x,y));
+				if(piece==' '){
+					++empty;//count empty spaces
+				}else{//if there is a piece
+					if(empty>0){//if there were empty squares
+						fen+=empty;//print how many
+						empty=0;//then reset
+					}
+					fen+=piece;//then print the piece
+				}
+			}
+			if(empty>0){//if there were empty squares
+				fen+=empty;//print how many
+				empty=0;//then reset
+			}
+			if(y>0) fen+='/';//print a slash rank separator if not on bottom rank
+		}
+		//Who's turn
+		fen+=(team==WHITE)? " w " : " b ";//print which player goes next
+		//castling
+		if(board.hasNotMoved(Coord.XYToIndex(Board.KRookX,0)) &&//castling for WHITE, check bottom rank
+				board.hasNotMoved(Coord.XYToIndex(Board.KingX,0))){//King side castle, ask board if the rook and king have ever moved
+			foundACastle=true;//tell the system to not print a blank
+			fen+='K';
+		}
+		if(board.hasNotMoved(Coord.XYToIndex(Board.QRookX,0)) &&
+				board.hasNotMoved(Coord.XYToIndex(Board.QueenX,0))){//Queen side castle, ask board if the rook and king have ever moved
+			foundACastle=true;//tell the system to not print a blank
+			fen+='Q';
+		}
+		if(board.hasNotMoved(Coord.XYToIndex(Board.KRookX,7)) &&//castling for BLACK, Check top rank
+				board.hasNotMoved(Coord.XYToIndex(Board.KingX,7))){//King side castle, ask board if the rook and king have ever moved
+			foundACastle=true;//tell the system to not print a blank
+			fen+='K';
+		}
+		if(board.hasNotMoved(Coord.XYToIndex(Board.QRookX,7)) &&
+				board.hasNotMoved(Coord.XYToIndex(Board.QueenX,7))){//Queen side castle, ask board if the rook and king have ever moved
+			foundACastle=true;//tell the system to not print a blank
+			fen+='Q';
+		}
+		if(!foundACastle) fen+='-';//if no castling moves found, just print a blank placeholder
+		//EnPassant
+		if(EnPassant==0) fen+=" -";//if no EnPassant squares, then print a blank
+		else if(team==WHITE){//if this turn is WHITE, then the last player was BLACK
+			fen+=' '+Coord.indexToPGN(Coord.shiftIndex(Coord.maskToIndex(EnPassant),0,1));//get index, shift it, convert it to a PGN coordinate
+		}else{//the last player was WHITE
+			fen+=' '+Coord.indexToPGN(Coord.shiftIndex(Coord.maskToIndex(EnPassant),0,-1));//same as above, but go upwards
+		}
+
+		return fen;
 	}
 
 	/**

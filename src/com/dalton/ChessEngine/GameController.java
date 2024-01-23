@@ -21,6 +21,7 @@ public class GameController{
 	Engine engine;
 	boolean playerColor;
 	boolean isWhiteAI, isBlackAI;
+	int turns, halfMoveClock;//how many turns and how many moves since a capture or pawn advance
 	int WhiteAILevel;
 	int BlackAILevel;
 
