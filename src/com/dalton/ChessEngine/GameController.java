@@ -315,7 +315,7 @@ public class GameController{
 		StringBuilder output=new StringBuilder();
 		output.append("   Black Side")//Header
 				.append("\n    A   B   C   D   E   F   G   H");//top bar
-		for(int y=BOARD_SIZE-1; y>=0; --y){
+		for(int y=XYMAX; y>=0; --y){
 			output.append("\n").append(y+1).append(" |");//start the line with a bar
 			for(int x=0; x<BOARD_SIZE; ++x){
 				boolean highlight=(0!=(highlightedSquares & (1L << Coord.XYToIndex(x,y))));//check if this square is in the highlighted mask

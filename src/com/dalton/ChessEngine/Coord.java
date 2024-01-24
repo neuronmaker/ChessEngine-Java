@@ -12,7 +12,7 @@ public class Coord{
 	public static final int NE=7, NW=9, SE=-9, SW=-7;
 	/** This is the index that flags an error in searching or something */
 	public static final int ERROR_INDEX=-1;
-	public static final char MAX_LETTER='a'+BOARD_SIZE-1;//gets the highest letter based on the BOARD_SIZE
+	public static final char MAX_LETTER='a'+XYMAX;//gets the highest letter based on the BOARD_SIZE
 	private boolean isSet=UNSET;
 	private int index;
 

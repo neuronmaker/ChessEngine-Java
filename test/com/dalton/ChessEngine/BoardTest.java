@@ -39,7 +39,7 @@ public class BoardTest{
 		customBoard=new Board(Board.CLEAR);
 		//positions and row numbers
 		KingPos=new Coord(0,0);
-		QueenPos=new Coord(0,BOARD_SIZE-1);
+		QueenPos=new Coord(0,XYMAX);
 		pawnRowNum=1;//2nd from bottom row: pawns
 		knightRowNum=3;//middle row: knights
 		rookRowNum=BOARD_SIZE-2;//2nd from top row: rooks
@@ -366,7 +366,7 @@ public class BoardTest{
 				assertEquals(board+errPrefix+"Should not find any Pieces for the other team",0,alliedMask);
 				alliedMask=board.alliedPieceMask(PieceCode.decodeTeam(piece));//get for this team
 				assertEquals(board+errPrefix+"Incorrect allied Piece mask (piece: "+PieceCode.decodePieceName(piece)+
-						" Location: expected: "+Coord.orderedPair(i)+" got: "+Coord.orderedPair(Coord.maskToIndex(alliedMask))
+								" Location: expected: "+Coord.orderedPair(i)+" got: "+Coord.orderedPair(Coord.maskToIndex(alliedMask))
 						,i,Coord.maskToIndex(alliedMask));
 			}
 		}

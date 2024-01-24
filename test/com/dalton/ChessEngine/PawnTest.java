@@ -163,7 +163,7 @@ public class PawnTest{
 				standardMoves=findJustMoves(gotMoves,board);
 				assertNotEquals("Tile "+pawnPos+" Left: Did not find a capture move",0,captureMoves.size());
 				assertEquals("Tile "+pawnPos+" Left: Should move Pawn to captured square",enemyPos.toString(),Coord.orderedPair(Move.getEndIndex(captureMoves.get(0))));//Hack to make Coord turn index into human-readable string
-				assertTrue("Tile: "+pawnPos+": capture move should flag capture", Move.isCapture(captureMoves.get(0)));
+				assertTrue("Tile: "+pawnPos+": capture move should flag capture",Move.isCapture(captureMoves.get(0)));
 				assertNotEquals("Tile "+pawnPos+" Left: Did not find a standard move",0,standardMoves.size());
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece, same place as enemy
@@ -183,7 +183,7 @@ public class PawnTest{
 				standardMoves=findJustMoves(gotMoves,board);
 				assertNotEquals("Tile "+pawnPos+" Right: Did not find a capture move",0,captureMoves.size());
 				assertEquals("Tile "+pawnPos+" Right: Should move Pawn to captured square",enemyPos.toString(),Coord.orderedPair(Move.getEndIndex(captureMoves.get(0))));
-				assertTrue("Tile: "+pawnPos+": capture move should flag capture", Move.isCapture(captureMoves.get(0)));
+				assertTrue("Tile: "+pawnPos+": capture move should flag capture",Move.isCapture(captureMoves.get(0)));
 				assertNotEquals("Tile "+pawnPos+" Right: Did not find a standard move",0,standardMoves.size());
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece, same place as enemy
@@ -303,9 +303,9 @@ public class PawnTest{
 	 * @param team WHITE or BLACK
 	 */
 	public void testPawnPromotionCommon(boolean team){
-		int lastRow=(team==WHITE) ? BOARD_SIZE-1 : 0;//if WHITE then go to top of board, if BLACK then go to bottom
-		int direction=(team==WHITE) ? 1 : -1;//if WHITE then go up, if BLACK then go down
-		int pieceCodeOffset=(team==WHITE) ? 0 : 1;//if WHITE then we don't add 1 to the codes, if BLACK we do because BLACK is on every other PieceCode
+		int lastRow=(team==WHITE)? XYMAX : 0;//if WHITE then go to top of board, if BLACK then go to bottom
+		int direction=(team==WHITE)? 1 : -1;//if WHITE then go up, if BLACK then go down
+		int pieceCodeOffset=(team==WHITE)? 0 : 1;//if WHITE then we don't add 1 to the codes, if BLACK we do because BLACK is on every other PieceCode
 		int[] foundPromotions=new int[PieceCode.PIECE_TYPES];
 		Board beforeMove;
 		Coord before, after;

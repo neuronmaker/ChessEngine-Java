@@ -144,7 +144,7 @@ public class King extends Piece{
 				moves.add(Move.encodeCastle(Move.qSideCastle,team));//We can castle Queen side
 			}
 			//Checking the kingside
-			rookPos=Coord.XYToIndex(BOARD_SIZE-1,Coord.indexToY(position));//get the other rook for this side
+			rookPos=Coord.XYToIndex(XYMAX,Coord.indexToY(position));//get the other rook for this side
 			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(kSideCastleMask,0,Coord.indexToY(position)))//as above, if anything falls into the mask, do not castle
 					&& board.hasNotMoved(rookPos)){//Must have blank line between the King and Rook and both must be unmoved
 				moves.add(Move.encodeCastle(Move.kSideCastle,team));//We can castle King side

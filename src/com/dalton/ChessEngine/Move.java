@@ -140,7 +140,7 @@ public abstract class Move{//class can't be instantiated, but it has static help
 			posY=0;
 			kingCode=PieceCode.KingW;
 		}else{
-			posY=BOARD_SIZE-1;//move everything up to top of board if BLACK
+			posY=XYMAX;//move everything up to top of board if BLACK
 			kingCode=PieceCode.KingB;
 		}
 		return switch(castleCode){

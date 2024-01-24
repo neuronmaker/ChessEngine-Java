@@ -324,7 +324,7 @@ public class KingTest{
 				filteredMoves=findCaptures(gotMoves,board);//Filter out capture moves (should only be one of these because only one enemy)
 				assertEquals("Tile: "+piecePos+" There should be exactly one capture at:"+enemyPos,1,filteredMoves.size());//should capture the enemy
 				assertEquals("Tile: "+piecePos+" End position should match the enemy piece at:"+enemyPos,enemyPos.toString(),Coord.orderedPair(Move.getEndIndex(filteredMoves.get(0))));//match destinations
-				assertTrue("Tile: "+piecePos+": capture move should flag capture", Move.isCapture(filteredMoves.get(0)));
+				assertTrue("Tile: "+piecePos+": capture move should flag capture",Move.isCapture(filteredMoves.get(0)));
 				assertEquals("Tile: "+piecePos+" Piece code must match the King even on captures:"+enemyPos,king.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//set to friendly unit

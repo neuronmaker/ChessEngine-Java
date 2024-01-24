@@ -203,7 +203,7 @@ public class KnightTest{
 				assertEquals("Tile:"+piecePos+" capture move at "+Coord.orderedPair(Move.getEndIndex(move))
 						+" should point to an enemy position",PieceCode.decodeChar(enemy.pieceCode),PieceCode.decodeChar(board.getSquare(Move.getEndIndex(move))));
 				assertTrue("Tile: "+piecePos+": capture move at"+Coord.orderedPair(Move.getEndIndex(move))+
-						" should flag capture", Move.isCapture(move));
+						" should flag capture",Move.isCapture(move));
 			}
 
 			for(Coord coord: expectedCoords){//fill reachable squares with friendlies

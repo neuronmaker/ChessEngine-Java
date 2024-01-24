@@ -17,7 +17,7 @@ public abstract class Types{// class can't be instantiated, but it has static he
 	/** Shorthands I am sure will help readability later */
 	public static final boolean SUCCESS=true, FAIL=false, SET=true, UNSET=false;
 	/** Constants in used to clarify the size of the board */
-	public static final int BOARD_SIZE=8, TOTAL_SQUARES=64;
+	public static final int BOARD_SIZE=8, TOTAL_SQUARES=64, XYMAX=7, XYMIN=0;
 
 	/**
 	 * Sets the capitalization of the char to match the case for that team

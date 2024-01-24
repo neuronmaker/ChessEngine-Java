@@ -160,7 +160,7 @@ public class BishopTest{
 				assertEquals("Tile: "+piecePos+": Should not have exactly one capture",1,filteredMoves.size());
 				assertEquals("Tile: "+piecePos+": capture move should end on the enemy piece",
 						enemyPos.toString(),Coord.orderedPair(Move.getEndIndex(filteredMoves.get(0))));
-				assertTrue("Tile: "+piecePos+": capture move should flag capture", Move.isCapture(filteredMoves.get(0)));
+				assertTrue("Tile: "+piecePos+": capture move should flag capture",Move.isCapture(filteredMoves.get(0)));
 				assertEquals("Tile: "+piecePos+": capture move should have this Bishop's code set in its pieceCode field",
 						piece.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
 

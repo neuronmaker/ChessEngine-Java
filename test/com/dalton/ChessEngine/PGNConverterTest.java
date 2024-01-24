@@ -1,6 +1,7 @@
 package com.dalton.ChessEngine;
 
 import junit.framework.TestCase;
+
 import static com.dalton.ChessEngine.Types.*;
 
 /**

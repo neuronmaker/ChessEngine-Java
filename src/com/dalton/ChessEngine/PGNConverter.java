@@ -164,7 +164,7 @@ public class PGNConverter{
 		char piece;
 		String fen="";
 		//piece locations
-		for(int y=BOARD_SIZE-1; y>=0; --y){//top to bottom (8th rank, 7th row down to 0th row)
+		for(int y=XYMAX; y>=0; --y){//top to bottom (8th rank, 7th row down to 0th row)
 			for(int x=0; x<BOARD_SIZE; ++x){//sweep across the rank
 				piece=PieceCode.decodeChar(board.getSquare(x,y));
 				if(piece==' '){
