@@ -236,7 +236,7 @@ public class Board{
 			case Move.pawnDoubleMove://for double move, make the move, then set the en passant vulnerability
 				setSquare(Blank,Move.getStartIndex(move));//blank out where we were
 				setSquare(Move.getPieceCode(move),Move.getEndIndex(move));//move
-				setEnPassant(indexToMask(Move.getEndIndex(move)));//record vulnerability
+				setEnPassant(indexToMask(Move.getEndIndex(move)));//record vulnerability on the pawn that moved
 				break;
 			case Move.EnPassantCapture://delete the square behind the pawn that moved because it captures that square
 				setSquare(Blank,EnPassant | Move.getStartMask(move));//Delete the only piece that was vulnerable to EnPassant, and the pawn that does the capturing

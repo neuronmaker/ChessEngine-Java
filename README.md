@@ -72,3 +72,14 @@ PGN handler class jobs:
       - Move generation
       - Look up based on Piece codes
   - Write README.md file
+
+## Idiosyncrasies
+
+- EnPassant
+  - vulnerability is recorded on the pawn that moved, not the square that is captured
+  - Reason is ease of writing the Pawn and Board classes around this behavior
+- Board simplicity
+  - Board just stores pieces, if they've moved, and EnPassant vulnerability
+  - Board does not check move legality and does not record who is playing
+  - All of this is for teh game application and the Engine to worry about, the Board is *just* a data type
+- 

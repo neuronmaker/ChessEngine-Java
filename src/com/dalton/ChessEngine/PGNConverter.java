@@ -8,11 +8,14 @@ import static com.dalton.ChessEngine.Types.*;
  * Decodes PGN notation and generates PGN notation from game history
  * Designed to be small and efficient
  * @author Dalton Herrewynen
- * @version 0.2
+ * @version 0.3
  */
 public class PGNConverter{
 	/** What differentiations to use? Constants for making a switch more readable than a tree of if-else blocks */
 	private static final int noDiff=0, DiffX=1, DiffY=2;
+	/** Mask for enabling castling */
+	private static final long KSideCastle=0b0000000000000000000000000000000000000000000000000000000010010000L,
+			QSideCastle=0b0000000000000000000000000000000000000000000000000000000000010001L;
 
 	/**
 	 * Calculates what move a PGN token refers to
@@ -199,31 +202,79 @@ public class PGNConverter{
 		if(board.hasNotMoved(Coord.XYToIndex(Board.KRookX,7)) &&//castling for BLACK, Check top rank
 				board.hasNotMoved(Coord.XYToIndex(Board.KingX,7))){//King side castle, ask board if the rook and king have ever moved
 			foundACastle=true;//tell the system to not print a blank
-			fen+='K';
+			fen+='k';
 		}
 		if(board.hasNotMoved(Coord.XYToIndex(Board.QRookX,7)) &&
 				board.hasNotMoved(Coord.XYToIndex(Board.QueenX,7))){//Queen side castle, ask board if the rook and king have ever moved
 			foundACastle=true;//tell the system to not print a blank
-			fen+='Q';
+			fen+='q';
 		}
 		if(!foundACastle) fen+='-';//if no castling moves found, just print a blank placeholder
 		//EnPassant
 		if(EnPassant==0) fen+=" -";//if no EnPassant squares, then print a blank
 		else if(team==WHITE){//if this turn is WHITE, then the last player was BLACK
-			fen+=' '+Coord.indexToPGN(Coord.shiftIndex(Coord.maskToIndex(EnPassant),0,1));//get index, shift it, convert it to a PGN coordinate
+			fen+=' '+Coord.indexToPGN(Coord.shiftIndex(Coord.maskToIndex(EnPassant),0,1));//get index, shift it because we store it differently than FEN
 		}else{//the last player was WHITE
-			fen+=' '+Coord.indexToPGN(Coord.shiftIndex(Coord.maskToIndex(EnPassant),0,-1));//same as above, but go upwards
+			fen+=' '+Coord.indexToPGN(Coord.shiftIndex(Coord.maskToIndex(EnPassant),0,-1));//same as above, but go downwards
 		}
-
+		fen+=" "+halfClock+" "+fullMoves;//add the half and full move clocks
 		return fen;
 	}
 
 	/**
 	 * Takes a FEN string and applies its state to a new Board instance
-	 * @param FEN The FEN string
+	 * @param fen The FEN string
 	 * @return A Board with the FEN applied
 	 */
-	public static Board applyFEN(String FEN){
-		return new Board();
+	public static Board applyFEN(String fen){
+		Board board=new Board(Board.CLEAR);
+		String[] FEN_Parts=fen.split("\\s");//split on whitespace
+		String fenBlk=FEN_Parts[0];
+		int y=XYMAX, x=0;
+		long unMovedMask=0;//0 out the mask
+		boolean team;
+		for(int i=0; i<fenBlk.length() && fenBlk.charAt(i)!=' ' && y>=0; ++i){//Extract Piece positions
+			if(fenBlk.charAt(i)=='/' || fenBlk.charAt(i)=='\\'){//if a line separator (tolerate backslashes)
+				--y;//move down a row
+				x=0;//start back at beginning of the row
+			}else if(fenBlk.charAt(i)>='0' && fenBlk.charAt(i)<='9'){//if a number
+				x+=Coord.fromNumeral(fenBlk.charAt(i));//move forward and don't place anything on the blank squares
+			}else{//only possible valid case is a piece character
+				board.setSquare(PieceCode.encodeChar(fenBlk.charAt(i)),x,y);//attempt to set a piece
+				++x;//move forward
+			}
+		}
+
+		team=(FEN_Parts[1].equalsIgnoreCase("w"));//get who plays next w=WHITE=true
+
+		fenBlk=FEN_Parts[2];//get castling rights, set all un moved squares
+		for(int i=0; i<fenBlk.length(); ++i){
+			switch(fenBlk.charAt(i)){
+				case 'K'://WHITE king side
+					unMovedMask|=KSideCastle;
+					break;
+				case 'Q'://WHITE queen side
+					unMovedMask|=QSideCastle;
+					break;
+				case 'k'://BLACK king side
+					unMovedMask|=Coord.shiftMask(KSideCastle,0,XYMAX);//shift up to the top row
+					break;
+				case 'q'://BLACK queen side
+					unMovedMask|=Coord.shiftMask(QSideCastle,0,XYMAX);//shift up to the top row
+					break;
+			}
+		}
+		unMovedMask|=Pawn.BLACK_Promotion_mask & board.searchPiece(PieceCode.PawnW);//Mark any pawns that are in the starting position as unmoved
+		unMovedMask|=Pawn.WHITE_Promotion_mask & board.searchPiece(PieceCode.PawnB);//Use the other team's promotion mask because it's this team's starting position
+		board.setHasNotMoved(unMovedMask);//apply the mask to the pieces that have not moved
+
+		if(!FEN_Parts[3].equals("-")){//check if there is EnPassant vulnerability
+			int EnPassant=Coord.PGNToIndex(FEN_Parts[3]);//get the integer index
+			if(team==WHITE) EnPassant=Coord.shiftIndex(EnPassant,0,-1);//move towards the direction of travel of the previous player (i.e. not this player)
+			else EnPassant=Coord.shiftIndex(EnPassant,0,1);//if this player is BLACK, last player was WHITE, move in WHITE's direction
+			board.setEnPassant(Coord.indexToMask(EnPassant));
+		}
+
+		return board;
 	}
 }
