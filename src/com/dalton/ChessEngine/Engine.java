@@ -13,6 +13,7 @@ public class Engine{
 	private int maxDepth;
 	private int maxThreads=1;
 	private Board[] boardArr;
+	private Board checkMateBoard;
 
 	/**
 	 * Checks if the player is in check
@@ -39,11 +40,25 @@ public class Engine{
 	public boolean isCheckmate(Board board,boolean team){
 		if(!inCheck(board,team)) return false;//not in check means not possible to check mate
 		ArrayList<Integer> moves=getLegalMoves(board,team);//get moves that this team can make
-		Board nextBoard=new Board(Board.CLEAR);
 		for(int i=0; i<moves.size(); ++i){//search for a move which would get out of check
-			nextBoard.loadState(board);
-			nextBoard.makeMove(moves.get(i));//simulate the moves
-			if(!inCheck(nextBoard,team)) return false;//if there is a move which gets out of check, then not a mate
+			checkMateBoard.loadState(board);
+			checkMateBoard.makeMove(moves.get(i));//simulate the moves
+			if(!inCheck(checkMateBoard,team)) return false;//if there is a move which gets out of check, then not a mate
+		}
+		return true;//if no saving moves found, then it's checkmate
+	}
+	/**
+	 * Checks if the player is checkmated (no way to save King from capture), requires a pre-computed moves list
+	 * @param board Current board state
+	 * @param team  WHITE or BLACK
+	 * @return True if checkmated, False if not
+	 */
+	public boolean isCheckmateFast(Board board,boolean team,ArrayList<Integer> moves){
+		if(!inCheck(board,team)) return false;//not in check means not possible to check mate
+		for(int i=0; i<moves.size(); ++i){//search for a move which would get out of check
+			checkMateBoard.loadState(board);
+			checkMateBoard.makeMove(moves.get(i));//simulate the moves
+			if(!inCheck(checkMateBoard,team)) return false;//if there is a move which gets out of check, then not a mate
 		}
 		return true;//if no saving moves found, then it's checkmate
 	}
@@ -198,6 +213,7 @@ public class Engine{
 		Board movedBoard=boardArr[depth];//get reference to the pre-allocated board array
 		int bestScore;
 		if(team==WHITE){//WHITE is maximizing player
+			//if(isCheckmateFast(board,WHITE,moves)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
 			bestScore=Integer.MIN_VALUE;//have not found a good move yet, pick the worst possible case for now
 			for(int i=0; i<moves.size() && bestScore>=alpha; ++i){
 				movedBoard.loadState(board);
@@ -210,6 +226,7 @@ public class Engine{
 				}
 			}
 		}else{//BLACK is minimizing player
+			//if(isCheckmateFast(board,BLACK,moves)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
 			bestScore=Integer.MAX_VALUE;//have not found a good move yet, go with worst option for now
 			for(int i=0; i<moves.size(); ++i){
 				movedBoard.loadState(board);
@@ -234,6 +251,7 @@ public class Engine{
 		maxDepth=depth;
 		maxThreads=threads;
 		boardArr=new Board[maxDepth];
+		checkMateBoard=new Board(Board.CLEAR);
 		for(int i=0; i<maxDepth; ++i){//pre-allocate the space for minimax boards
 			boardArr[i]=new Board(Board.CLEAR);
 		}
