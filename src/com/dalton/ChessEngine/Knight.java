@@ -136,4 +136,35 @@ public class Knight extends Piece{
 		}
 		return moves;
 	}
+
+	/**
+	 * Get the mask of squares this Knight can attack
+	 * @param friends Mask of friendly units to mask out
+	 * @param pos     The integer position index
+	 * @return a 64 bit integer bit mask
+	 */
+	@Override
+	public long attackMask(long friends,int pos){
+		return attackMask[pos]&~friends;//take attacking mask and remove all friendly pieces since we can't attack them
+	}
+
+	/**
+	 * The move generator method for Knight
+	 * @param enemies  The positions of all enemies in a bitmask
+	 * @param blanks   The position of all blank squares in a bitmask
+	 * @param position The position index to check from
+	 * @return an ArrayList of integers which encode all the relevant move data for each move
+	 */
+	//@Override
+	public ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position){
+		ArrayList<Integer> moves=new ArrayList<>();
+		//Check each direction
+		for(int[] dir: offset){
+			int destIndex=Coord.shiftIndex(position,dir[0],dir[1]);
+			if(!Coord.isShiftValid(position,dir[0],dir[1])) continue;//We can only move the knight to squares that exist
+			if(0!=(blanks & (1L << destIndex))) moves.add(Move.encodeNormal(this.pieceCode,position,destIndex));//if blank, then just move
+			else if(0!=(enemies & (1L << destIndex))) moves.add(Move.encode(Move.capture,this.pieceCode,position,destIndex));//Only capture the other team
+		}
+		return moves;
+	}
 }

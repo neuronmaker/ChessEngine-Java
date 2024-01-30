@@ -136,4 +136,14 @@ public class Pawn extends Piece{
 		}
 		return promotions;
 	}
+	/**
+	 * Get the mask of squares this piece can attack
+	 * @param friends Mask of friendly units to mask out
+	 * @param pos     The integer position index
+	 * @return a 64 bit integer bit mask
+	 */
+	@Override
+	public long attackMask(long friends,int pos){
+		return 0;
+	}
 }

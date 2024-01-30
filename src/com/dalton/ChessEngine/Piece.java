@@ -20,9 +20,10 @@ public abstract class Piece{
 		pieceCode=givenCode;
 	}
 
-	public abstract int pieceValue(Board board,int position);
+	public abstract int pieceValue(Board board,final int position);
 
-	public abstract ArrayList<Integer> getMoves(Board board,int position);
+	public abstract ArrayList<Integer> getMoves(Board board,final int position);
+	//public abstract ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position);
 
 	/**
 	 * Checks a Horizontal and a Vertical line for sliding pieces
@@ -123,15 +124,5 @@ public abstract class Piece{
 	 * @param pos The integer position index
 	 * @return a 64 bit integer bit mask
 	 */
-	//public abstract long attackMask(long friends, int pos);
-
-	/**
-	 * Override for when a board pass is preferred
-	 * @param board the current board
-	 * @param pos The integer position index
-	 * @return a 64 bit integer bit mask
-	 */
-	//public long attackMask(Board board, int pos){
-	//	return attackMask(board.alliedPieceMask(team),pos);
-	//}
+	public abstract long attackMask(final long friends,final int pos);
 }

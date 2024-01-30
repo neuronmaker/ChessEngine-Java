@@ -174,4 +174,15 @@ public class King extends Piece{
 		}
 		return false;//King is not in check
 	}
+
+	/**
+	 * Get the mask of squares this King can attack
+	 * @param friends Mask of friendly units to mask out
+	 * @param pos     The integer position index
+	 * @return a 64 bit integer bit mask
+	 */
+	@Override
+	public long attackMask(long friends,int pos){
+		return attackMask[pos]&~friends;//take attacking mask and remove all friendly pieces since we can't attack them
+	}
 }

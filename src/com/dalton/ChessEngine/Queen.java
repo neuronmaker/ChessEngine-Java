@@ -55,7 +55,7 @@ public class Queen extends Piece{
 	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(Board board,int position){
+	public ArrayList<Integer> getMoves(Board board,int position){//todo idea: split into table of rays and generate all rays with all blocked lengths
 		ArrayList<Integer> moves=new ArrayList<>();
 		long enemies=board.alliedPieceMask(!team);
 		long blanks=~(enemies | board.alliedPieceMask(team));//add the enemies and friends together, invert to get blanks
@@ -67,5 +67,16 @@ public class Queen extends Piece{
 		moves.addAll(HVLineCheck(enemies,blanks,position));
 
 		return moves;
+	}
+
+	/**
+	 * Get the mask of squares the Queen can attack
+	 * @param friends Mask of friendly units to mask out
+	 * @param pos     The integer position index
+	 * @return a 64 bit integer bit mask
+	 */
+	@Override
+	public long attackMask(long friends,int pos){
+		return 0;
 	}
 }

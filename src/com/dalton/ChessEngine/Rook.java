@@ -59,4 +59,15 @@ public class Rook extends Piece{
 		long blanks=~(enemies | board.alliedPieceMask(team));//add the enemies and friends together, invert to get blanks
 		return HVLineCheck(enemies,blanks,position);
 	}
+
+	/**
+	 * Get the mask of squares this piece can attack
+	 * @param friends Mask of friendly units to mask out
+	 * @param pos     The integer position index
+	 * @return a 64 bit integer bit mask
+	 */
+	@Override
+	public long attackMask(long friends,int pos){
+		return 0;
+	}
 }

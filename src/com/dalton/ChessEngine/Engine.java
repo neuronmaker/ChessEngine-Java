@@ -36,7 +36,7 @@ public class Engine{
 	 * @param team  WHITE or BLACK
 	 * @return True if checkmated, False if not
 	 */
-	public static boolean isCheckmate(Board board,boolean team){
+	public boolean isCheckmate(Board board,boolean team){
 		if(!inCheck(board,team)) return false;//not in check means not possible to check mate
 		ArrayList<Integer> moves=getLegalMoves(board,team);//get moves that this team can make
 		Board nextBoard=new Board(Board.CLEAR);
@@ -53,9 +53,10 @@ public class Engine{
 	 * @param board The current board state
 	 * @return A score from WHITE player's perspective
 	 */
-	public static int score(Board board){
+	public int score(Board board){
+		//todo find a way to only do legal moves since it gets moves after checks or checkmates
 		if(isCheckmate(board,WHITE)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
-		if(isCheckmate(board,BLACK)) return Integer.MIN_VALUE;//if BLACK is checkmated, Max score favors WHITE
+		if(isCheckmate(board,BLACK)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
 		int score=0;
 		for(int i=0; i<PieceCode.PIECE_TYPES; ++i){
 			long positions=board.searchPiece(i);//Search WHITE first
