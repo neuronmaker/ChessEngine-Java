@@ -19,6 +19,10 @@ public class Pawn extends Piece{
 	public static final long
 			WHITE_Promotion_mask=0b0000000011111111000000000000000000000000000000000000000000000000L,
 			BLACK_Promotion_mask=0b0000000000000000000000000000000000000000000000001111111100000000L;
+	/** Bit masks used to detect if a pawn is in the position to EnPassant Capture */
+	public static final long
+			WHITE_EnPassant_mask=0b0000000000000000000000001111111100000000000000000000000000000000L,
+			BLACK_EnPassant_mask=0b0000000000000000000000000000000011111111000000000000000000000000L;
 
 	/**
 	 * Constructs the Pawn and sets the color
@@ -81,7 +85,7 @@ public class Pawn extends Piece{
 	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(Board board,int position){
+	public ArrayList<Integer> getMoves(Board board,final int position){//todo convert to a enemies and blank mask system
 		ArrayList<Integer> moves=new ArrayList<>();
 		int dy=(team==WHITE)? 1 : -1;//move forward if WHITE, backwards if BLACK
 		long diagLeftMask=(1L << Coord.shiftIndex(position,-1,dy)),//diagonally to the left, purely for readability, generates the bitmask for the square
@@ -102,12 +106,13 @@ public class Pawn extends Piece{
 		//captures (with Yoda code)
 		if(0!=(enemies & diagLeftMask) && !edgeLeft) moves.add(Move.encode(Move.capture,pieceCode,position,Coord.shiftIndex(position,-1,dy)));//capture if enemy piece diagonally to the left
 		if(0!=(enemies & diagRightMask) && !edgeRight) moves.add(Move.encode(Move.capture,pieceCode,position,Coord.shiftIndex(position,1,dy)));//capture if enemy piece diagonally to the right
-		//EnPassant - no need to check for blank squares as they will be blank if EnPassant was tripped anyhow
+		/*//EnPassant - no need to check for blank squares as they will be blank if EnPassant was tripped anyhow
 		if(0!=(enemies & board.getEnPassant() & (1L << Coord.shiftIndex(position,-1,0))) && !edgeLeft){//Can I EnPassant to the left? (bitmask madness to quick search EnPassant against enemies left of pawn)
 			moves.add(Move.encode(Move.EnPassantCapture,pieceCode,position,Coord.shiftIndex(position,-1,dy)));
 		}else if(0!=(enemies & board.getEnPassant() & (1L << Coord.shiftIndex(position,1,0))) && !edgeRight){//Can I EnPassant to the right? (bitmask madness to quick search EnPassant against enemies right of pawn)
 			moves.add(Move.encode(Move.EnPassantCapture,pieceCode,position,Coord.shiftIndex(position,1,dy)));
 		}//else if is because enpassant only happens to one pawn at a time, save a jump sometimes
+		*/
 
 		//promotion
 		if(team==WHITE && 0!=(WHITE_Promotion_mask & (1L << position)) ||//Mask WHITE for promotion eligibility
@@ -116,6 +121,24 @@ public class Pawn extends Piece{
 		}
 
 		return moves;//if no promotion, then return the normal moves list
+	}
+
+	/**
+	 * Separate check for EnPassant moves to save some cycles elsewhere
+	 * @param EnPassant The mask holding the only piece that can be captured by EnPassant
+	 * @param enemies   The mask of all enemies
+	 * @param position  The position of this pawn
+	 * @return Single integer encoded move or a blank move
+	 */
+	public int EnPassant(final long EnPassant,final long enemies,final int position){
+		boolean edgeLeft=Coord.indexToX(position)==0;
+		boolean edgeRight=Coord.indexToX(position)==7;
+		if(0!=(enemies & EnPassant & (1L << Coord.shiftIndex(position,-1,0))) && !edgeLeft){//Can I EnPassant to the left? (bitmask madness to quick search EnPassant against enemies left of pawn)
+			return Move.encode(Move.EnPassantCapture,pieceCode,position,Coord.shiftIndex(position,-1,moveYDirection(team)));
+		}else if(0!=(enemies & EnPassant & (1L << Coord.shiftIndex(position,1,0))) && !edgeRight){//Can I EnPassant to the right? (bitmask madness to quick search EnPassant against enemies right of pawn)
+			return Move.encode(Move.EnPassantCapture,pieceCode,position,Coord.shiftIndex(position,1,moveYDirection(team)));
+		}//else if is because enpassant only happens to one pawn at a time, save a jump sometimes
+		return Move.blank();
 	}
 
 	/**
