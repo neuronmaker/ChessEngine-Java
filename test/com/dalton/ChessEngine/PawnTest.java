@@ -24,6 +24,7 @@ import static com.dalton.ChessEngine.UtilsForTests.*;
  */
 public class PawnTest{
 	Board board;
+	Engine engine;
 	ArrayList<Integer> gotMoves;
 
 	@Before
@@ -236,6 +237,7 @@ public class PawnTest{
 	public void testEnPassantGenerationCommon(boolean team){
 		int enemyRow, doubleMoveRow, attackDirection, dblMove;
 		Coord enemyPos, enemyDblMoveDest, friendlyPos, attackDest;
+		int gotMove=Move.blank();
 		Pawn friendly=new Pawn(team), enemy=new Pawn(!team);
 		if(team==WHITE){//when WHITE does the capturing
 			enemyRow=6;//place enemy pawns on row 6 (rank 7)
@@ -260,12 +262,12 @@ public class PawnTest{
 				board.setSquare(friendly.pieceCode,friendlyPos.getIndex());//place attacking pawn
 
 				board.makeMove(dblMove);//make the double move
-				gotMoves=findMovesByCode(friendly.getMoves(board,friendlyPos.getIndex()),Move.EnPassantCapture);//search for the EnPassant capture
+				gotMove=friendly.EnPassant(board.getEnPassant(),board.alliedPieceMask(!friendly.team),friendlyPos.getIndex());//search for the EnPassant capture
 
-				assertEquals("Left: Capturing Pawn: "+friendlyPos+" captured pawn: "+enemyPos+"->"+enemyDblMoveDest+" Should find 1 EnPassant move"
-						,1,gotMoves.size());
+				assertFalse("Left: Capturing Pawn: "+friendlyPos+" captured pawn: "+enemyPos+"->"+enemyDblMoveDest+" Should find 1 EnPassant move"
+						,Move.isBlank(gotMove));
 				assertEquals("Left: Capturing Pawn: "+friendlyPos+" Should have En Passant capture destination at"+attackDest
-						,attackDest.getIndex(),Move.getEndIndex(gotMoves.get(0)));
+						,attackDest.getIndex(),Move.getEndIndex(gotMove));
 			}
 
 			friendlyPos=new Coord(x+1,doubleMoveRow);//the attacking pawn, right of the attacked pawn, two spaces ahead of it
@@ -276,12 +278,12 @@ public class PawnTest{
 				board.setSquare(friendly.pieceCode,friendlyPos.getIndex());//place attacking pawn
 
 				board.makeMove(dblMove);//make the double move
-				gotMoves=findMovesByCode(friendly.getMoves(board,friendlyPos.getIndex()),Move.EnPassantCapture);//search for the EnPassant capture
+				gotMove=friendly.EnPassant(board.getEnPassant(),board.alliedPieceMask(!friendly.team),friendlyPos.getIndex());//search for the EnPassant capture
 
-				assertEquals("Right: Capturing Pawn: "+friendlyPos+" captured pawn: "+enemyPos+"->"+enemyDblMoveDest+" Should find 1 EnPassant move"
-						,1,gotMoves.size());
+				assertFalse("Right: Capturing Pawn: "+friendlyPos+" captured pawn: "+enemyPos+"->"+enemyDblMoveDest+" Move should not be blank"
+						,Move.isBlank(gotMove));
 				assertEquals("right: Capturing Pawn: "+friendlyPos+" Should have En Passant capture destination at"+attackDest
-						,attackDest.getIndex(),Move.getEndIndex(gotMoves.get(0)));
+						,attackDest.getIndex(),Move.getEndIndex(gotMove));
 			}
 		}
 	}
