@@ -28,7 +28,7 @@ public class GameController{
 	/** Runs the game */
 	public void startPrimaryLoop(){
 		String command="-start";//display starting screen and then prompt for input
-		while(!command.equalsIgnoreCase("-quit")){
+		while(!command.equalsIgnoreCase("-quit") && gameRunning()){
 			switch(command){
 				case "-start":
 				case "-status":
@@ -88,8 +88,23 @@ public class GameController{
 			System.out.print(Types.getTeamString(playerColor)+" -> ");
 			command=scanner.nextLine();
 		}
+		if(!gameRunning()){//if game is over, print the history, do not run on a quit command
+			System.out.println("Game over");
+			printHistory();
+		}
 	}
 
+	/**
+	 * Searches for game over events, win, lose, draw
+	 * @return True if game is on, False if game ended
+	 */
+	public boolean gameRunning(){
+		if(engine.isCheckmate(board,WHITE)) return false;//For if BLACK wins by checkmating WHITE
+		if(engine.isCheckmate(board,BLACK)) return false;//For if WHITE wins by checkmating BLACK
+		//add stalemates here
+		if(board.searchPiece(KingW)==0 || board.searchPiece(KingB)==0) return false;//if either king is gone, game is over
+		return true;
+	}
 	/**
 	 * Tells the AI go generate a move, and the applies it to the board
 	 * @param AIColor WHITE or BLACK
