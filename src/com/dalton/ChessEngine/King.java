@@ -135,6 +135,17 @@ public class King extends Piece{
 			else if(0!=(enemies & (1L << destIndex)))
 				moves.add(Move.encode(Move.capture,this.pieceCode,position,destIndex));//Only capture the other team
 		}
+		return moves;
+	}
+
+	/**
+	 * Checks for castling moves
+	 * @param board    The current state of the board
+	 * @param position The position index to check from
+	 * @return ArrayList of any found castling moves (if any)
+	 */
+	public ArrayList<Integer> getCastles(Board board,int position){
+	ArrayList<Integer> moves=new ArrayList<>();
 		//Castling moves
 		if(board.hasNotMoved(position) && !isInCheck(board,position)){//no castling if moved or in check
 			//Checking the queenside
@@ -159,7 +170,7 @@ public class King extends Piece{
 	 * @param position Where this King is located on the board
 	 * @return True if the King is in check, False otherwise
 	 */
-	public boolean isInCheck(Board board,int position){//todo change this to use an attacking mask for speed
+	public boolean isInCheck(Board board,int position){//todo change this to use an attacking mask for speed, ray cast from king instead of checking all enemy moves
 		//Check if any enemy pieces can can attack the King's position
 		for(int piece=(!team)? 0 : 1; piece<PieceCode.KingW; piece+=2){//get all pieces for other team by integer code
 			int pieceIndex=Coord.maskToIndex(board.searchPiece(piece));//locate the piece

@@ -120,8 +120,8 @@ public abstract class Piece{
 
 	/**
 	 * Get the mask of squares this piece can attack
-	 * @param friends  Mask of friendly units to mask out
-	 * @param pos The integer position index
+	 * @param friends Mask of friendly units to mask out
+	 * @param pos     The integer position index
 	 * @return a 64 bit integer bit mask
 	 */
 	public abstract long attackMask(final long friends,final int pos);
