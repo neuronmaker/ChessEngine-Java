@@ -198,6 +198,20 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	}
 
 	/**
+	 * Hunts for moves with a given starting index... no optimizations so don't use in the AI
+	 * @param moves a list to match against
+	 * @param index the starting index
+	 * @return Empty list if nothing matches, or a list of matching moves
+	 */
+	public static ArrayList<Integer> findMovesByStart(ArrayList<Integer> moves,int index){
+		ArrayList<Integer> found=new ArrayList<>();
+		for(int i=0; i<moves.size(); ++i){//Old style loops are sometimes slightly faster than enhanced for loops
+			if(getStartIndex(moves.get(i))==index) found.add(moves.get(i));//found a match, add it
+		}
+		return found;
+	}
+
+	/**
 	 * Checks if this is a capture move
 	 * @param move The move integer to check
 	 * @return True if capture bit is set, False otherwise

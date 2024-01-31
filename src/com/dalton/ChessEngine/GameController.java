@@ -162,7 +162,8 @@ public class GameController{
 			if(PieceCode.decodeTeam(board.getSquare(start.getIndex()))==playerColor && board.getSquare(start.getIndex())!=Blank)
 				System.out.println("Not your piece!");
 		}
-		legalMoves=PieceCode.pieceObj(board.getSquare(start.getIndex())).getMoves(board,start.getIndex());//store the legal moves for the piece here
+		legalMoves=Engine.getLegalMoves(board,board.getSquare(start.getIndex()));//get all moves for all pieces of this type
+		legalMoves=Move.findMovesByStart(legalMoves,start.getIndex());//filter by starting index, this will be changed if I find a better way
 		showBoard(start.getMask() | Move.destinationsToMask(legalMoves));//highlight this square and all legal moves
 		System.out.print(Types.getTeamString(playerColor)+"TO? "+start.getPGN()+"-> ");
 		move=scanner.nextLine();
