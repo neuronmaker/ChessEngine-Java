@@ -189,7 +189,7 @@ public class KingTest{
 	public void testCastleQueenSideWHITE(){
 		setUpCastles(WHITE);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board,kingPos.getIndex());
+		gotMoves=king.getCastles(board);
 		for(int i=0; i<gotMoves.size(); ++i){//Search for a castling move
 			if(Move.getSpecialCode(gotMoves.get(i))==Move.qSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves
@@ -210,7 +210,7 @@ public class KingTest{
 	public void testCastleKingSideWHITE(){
 		setUpCastles(WHITE);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board,kingPos.getIndex());
+		gotMoves=king.getCastles(board);
 		for(int i=0; i<gotMoves.size(); ++i){//Search for a castling move
 			if(Move.getSpecialCode(gotMoves.get(i))==Move.kSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves
@@ -231,7 +231,7 @@ public class KingTest{
 	public void testCastleQueenSideBLACK(){
 		setUpCastles(BLACK);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board,kingPos.getIndex());
+		gotMoves=king.getCastles(board);
 		for(int gotMove: gotMoves){//Search for a castling move
 			if(Move.getSpecialCode(gotMove)==Move.qSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves
@@ -252,7 +252,7 @@ public class KingTest{
 	public void testCastleKingSideBLACK(){
 		setUpCastles(BLACK);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board,kingPos.getIndex());
+		gotMoves=king.getCastles(board);
 		for(int gotMove: gotMoves){//Search for a castling move
 			if(Move.getSpecialCode(gotMove)==Move.kSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves

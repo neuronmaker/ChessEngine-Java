@@ -7,7 +7,7 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * Holds the chess engine code
  * @author Dalton Herrewynen
- * @version 0.3
+ * @version 0.4
  */
 public class Engine{
 	private int maxDepth;
@@ -99,15 +99,35 @@ public class Engine{
 	 */
 	public static ArrayList<Integer> getLegalMoves(Board board,boolean team){
 		ArrayList<Integer> moves=new ArrayList<>();
-		int i=(team==WHITE)? PieceCode.WHITE_OFFSET : PieceCode.BLACK_OFFSET;
+		int i=(team==WHITE)? PieceCode.WHITE_OFFSET : PieceCode.BLACK_OFFSET,pawn,king,index;
+		long enemies=board.alliedPieceMask(!team),blanks=~(enemies | board.alliedPieceMask(team)),positions;
 		for(; i<PieceCode.PIECE_TYPES; i+=2){
-			long positions=board.searchPiece(i);//for each piece code
-			int index=Coord.maskToIndex(positions);
+			positions=board.searchPiece(i);//for each piece code
+			index=Coord.maskToIndex(positions);
 			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-				moves.addAll(PieceCode.pieceObj(i).getMoves(board,index));//get all moves for every allied piece
+				moves.addAll(PieceCode.pieceObj(i).getMoves(board,index));//get all basic moves for every allied piece
 				index=Coord.maskToNextIndex(positions,index);//find next location
 			}
 		}
+		//Check for EnPassant
+		if(team==WHITE){//todo, use batch processing masking techniques
+			positions=board.searchPiece(PieceCode.PawnW)&Pawn.WHITE_EnPassant_mask;//get all pawns that are at EnPassant capture rank
+			pawn=PieceCode.PawnW;
+			king=PieceCode.KingW;
+		}else{
+			positions=board.searchPiece(PieceCode.PawnB)&Pawn.BLACK_EnPassant_mask;
+			pawn=PieceCode.PawnB;
+			king=PieceCode.KingB;
+		}
+		index=Coord.maskToIndex(positions);
+		while(index!=Coord.ERROR_INDEX){
+			int move=((Pawn) PieceCode.pieceObj(pawn)).EnPassant(board.getEnPassant(),enemies,index);
+			if(!Move.isBlank(move)) moves.add(move);
+			index=Coord.maskToNextIndex(positions,index);
+		}
+		//Castling
+		moves.addAll(((King) PieceCode.pieceObj(king)).getCastles(board));//get castling moves
+
 		return moves;
 	}
 
@@ -122,9 +142,33 @@ public class Engine{
 	public static ArrayList<Integer> getLegalMoves(Board board,int pieceCode){
 		ArrayList<Integer> moves=new ArrayList<>();
 		long positions=board.searchPiece(pieceCode);//for each piece code
-		int index=Coord.maskToIndex(positions);
+		long enemies=board.alliedPieceMask(!PieceCode.decodeTeam(pieceCode)),
+				blanks=~(enemies | board.alliedPieceMask(PieceCode.decodeTeam(pieceCode)));
+		long filteredPawns=0;
+		int index=Coord.maskToIndex(positions);//get initial position
+		switch(pieceCode){//special moves
+			case PieceCode.KingW://Kings can castle
+			case PieceCode.KingB://There is only one King on the board
+				moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(board,index));//get all standard moves
+				moves.addAll(((King) PieceCode.pieceObj(pieceCode)).getCastles(board));//get castling moves
+				return moves;//Only one king so we are done
+			case PieceCode.PawnW://select the EnPassant filter for either pawn
+				filteredPawns=Pawn.WHITE_EnPassant_mask&positions;//filter out only pawns that can EnPassant
+				break;
+			case PieceCode.PawnB:
+				filteredPawns=Pawn.BLACK_EnPassant_mask&positions;
+				break;
+		}
+		if(board.getEnPassant()!=0 && filteredPawns!=0){//if there is an EnPassant vulnerability
+			int filteredIndex=Coord.maskToIndex(filteredPawns),move;
+			while(filteredIndex!=Coord.ERROR_INDEX){//search all positions that piece is found at
+				move=((Pawn) PieceCode.pieceObj(pieceCode)).EnPassant(board.getEnPassant(),enemies,filteredIndex);
+				if(!Move.isBlank(move)) moves.add(move);//if a move was found, add it
+				filteredIndex=Coord.maskToNextIndex(filteredPawns,filteredIndex);//find next location
+			}
+		}
 		while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-			moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(board,index));//get all moves for every one of these pieces
+			moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(board,index));//get all normal moves for every one of these pieces
 			index=Coord.maskToNextIndex(positions,index);//find next location
 		}
 		return moves;

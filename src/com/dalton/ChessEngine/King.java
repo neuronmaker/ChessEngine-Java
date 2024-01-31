@@ -12,6 +12,7 @@ import static com.dalton.ChessEngine.Types.*;
  * @see Piece
  */
 public class King extends Piece{
+	private final int startingIndex;//There is only ever 1 King on the board
 	/** Generate all the possible directions a king can move */
 	private static final int[][] offset={{1,0},{-1,0},{0,1},{0,-1},{1,1},{-1,-1},{1,-1},{-1,1}};
 	/** Masks for checking Queen and King side castling */
@@ -91,6 +92,7 @@ public class King extends Piece{
 	 */
 	public King(boolean team){
 		super((team==WHITE)? KingW : KingB);
+		startingIndex=Coord.XYToIndex(Board.KingX,(team==WHITE)?XYMIN:XYMAX);//For WHITE shift up 0, for BLACK, shift to the top
 	}
 
 	/**
@@ -141,22 +143,20 @@ public class King extends Piece{
 	/**
 	 * Checks for castling moves
 	 * @param board    The current state of the board
-	 * @param position The position index to check from
 	 * @return ArrayList of any found castling moves (if any)
 	 */
-	public ArrayList<Integer> getCastles(Board board,int position){
-	ArrayList<Integer> moves=new ArrayList<>();
-		//Castling moves
-		if(board.hasNotMoved(position) && !isInCheck(board,position)){//no castling if moved or in check
+	public ArrayList<Integer> getCastles(Board board){
+		ArrayList<Integer> moves=new ArrayList<>();
+		if(board.hasNotMoved(startingIndex) && !isInCheck(board,startingIndex)){//no castling if moved or in check
 			//Checking the queenside
-			int rookPos=Coord.XYToIndex(0,Coord.indexToY(position));//get the rook for this side
-			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(qSideCastleMask,0,Coord.indexToY(position)))//use shifting of the mask to make it work for WHITE and BLACK
+			int rookPos=Coord.XYToIndex(0,Coord.indexToY(startingIndex));//get the rook for this side
+			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(qSideCastleMask,0,Coord.indexToY(startingIndex)))//use shifting of the mask to make it work for WHITE and BLACK
 					&& board.hasNotMoved(rookPos)){//Must have blank line between the King and Rook and both must be unmoved
 				moves.add(Move.encodeCastle(Move.qSideCastle,team));//We can castle Queen side
 			}
 			//Checking the kingside
-			rookPos=Coord.XYToIndex(XYMAX,Coord.indexToY(position));//get the other rook for this side
-			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(kSideCastleMask,0,Coord.indexToY(position)))//as above, if anything falls into the mask, do not castle
+			rookPos=Coord.XYToIndex(XYMAX,Coord.indexToY(startingIndex));//get the other rook for this side
+			if(PieceCode.Blank==board.getSquare(Coord.shiftMask(kSideCastleMask,0,Coord.indexToY(startingIndex)))//as above, if anything falls into the mask, do not castle
 					&& board.hasNotMoved(rookPos)){//Must have blank line between the King and Rook and both must be unmoved
 				moves.add(Move.encodeCastle(Move.kSideCastle,team));//We can castle King side
 			}

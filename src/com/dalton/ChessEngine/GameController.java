@@ -49,6 +49,9 @@ public class GameController{
 				case "show":
 					showBoard();
 					break;
+				case "-raw":
+					System.out.println(board.toString());
+					break;
 				case "-history":
 				case "history":
 					printHistory();
