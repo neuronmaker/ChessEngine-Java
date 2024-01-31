@@ -34,16 +34,15 @@ public class Rook extends Piece{
 
 	/**
 	 * Calculates the relative value of this piece, used for AI
-	 * @param board    The board this Rook is on
+	 * @param enemies  Mask of enemy squares
+	 * @param blanks   Mask of blank squares
 	 * @param position Where the Rook is on the board
 	 * @return Relative value for AI
 	 */
 	//TODO finish this
 	@Override
-	public int pieceValue(final Board board,final int position){
+	public int pieceValue(final long enemies,final long blanks,final int position){
 		int score=500;
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));//add the enemies and friends together, invert to get blanks
 		ArrayList<Integer> moves=getMoves(enemies,blanks,position);
 		score+=moves.size()*10;
 		return score;

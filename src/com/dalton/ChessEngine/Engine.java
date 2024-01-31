@@ -72,19 +72,21 @@ public class Engine{
 		//todo find a way to only do legal moves since it gets moves after checks or checkmates
 		if(isCheckmate(board,WHITE)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
 		if(isCheckmate(board,BLACK)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
+		long white=board.alliedPieceMask(WHITE),black=board.alliedPieceMask(BLACK),
+				blank=~(white|black);//add all occupied squares, take any that are not occupied and consider them blank
 		int score=0;
 		for(int i=0; i<PieceCode.PIECE_TYPES; ++i){
 			long positions=board.searchPiece(i);//Search WHITE first
 			int index=Coord.maskToIndex(positions);
-			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-				score+=PieceCode.pieceObj(i).pieceValue(board,index);//todo replace this with a function here that can be smarter
+			while(index!=Coord.ERROR_INDEX){//search all positions that WHITE piece is found at
+				score+=PieceCode.pieceObj(i).pieceValue(black,blank,index);//todo replace this with a function here that can be smarter
 				index=Coord.maskToNextIndex(positions,index);//find next location
 			}
 			++i;//flip to BLACK
 			positions=board.searchPiece(i);//Same Piece but now BLACK
 			index=Coord.maskToIndex(positions);
 			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-				score-=PieceCode.pieceObj(i).pieceValue(board,index);
+				score-=PieceCode.pieceObj(i).pieceValue(white,blank,index);
 				index=Coord.maskToNextIndex(positions,index);//find next location
 			}
 		}

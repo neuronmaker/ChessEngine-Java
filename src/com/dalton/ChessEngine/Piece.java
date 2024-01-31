@@ -20,7 +20,7 @@ public abstract class Piece{
 		pieceCode=givenCode;
 	}
 
-	public abstract int pieceValue(Board board,final int position);
+	public abstract int pieceValue(final long enemies,final long blanks,final int position);
 	public abstract ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position);
 
 	/**

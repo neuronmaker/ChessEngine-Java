@@ -106,12 +106,13 @@ public class King extends Piece{
 
 	/**
 	 * Calculates the King's value to the AI player
-	 * @param board    The current Board object
+	 * @param enemies  Mask of enemy squares
+	 * @param blanks   Mask of blank squares
 	 * @param position Where this Piece is located on the board
 	 * @return relative value to the AI
 	 */
 	@Override
-	public int pieceValue(final Board board,final int position){
+	public int pieceValue(final long enemies,final long blanks,final int position){
 		return Integer.MAX_VALUE;
 	}
 

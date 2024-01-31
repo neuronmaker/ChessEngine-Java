@@ -101,12 +101,13 @@ public class Knight extends Piece{
 
 	/**
 	 * Calculates the Knight's value to the AI player
-	 * @param board    The current Board object
+	 * @param enemies  The positions of all enemies in a bitmask
+	 * @param blanks   The position of all blank squares in a bitmask
 	 * @param position Where this Piece is located on the board
 	 * @return relative value to the AI
 	 */
 	@Override
-	public int pieceValue(Board board,int position){
+	public int pieceValue(final long enemies,final long blanks,final int position){
 		int score=300, xPos=Coord.indexToX(position), yPos=Coord.indexToY(position);
 
 		if(xPos==0 || xPos==7){
@@ -146,5 +147,4 @@ public class Knight extends Piece{
 	public long attackMask(long friends,int pos){
 		return attackMask[pos]&~friends;//take attacking mask and remove all friendly pieces since we can't attack them
 	}
-
 }

@@ -48,16 +48,17 @@ public class Pawn extends Piece{
 
 	/**
 	 * Calculates the Pawn's value to the AI player
-	 * @param board    The current Board object
+	 * @param enemies  Mask of enemy squares
+	 * @param blanks   Mask of blank squares
 	 * @param position Where this Piece is located on the board
 	 * @return relative value to the AI
 	 */
 	@Override
-	public int pieceValue(Board board,int position){//TODO speed test against a matrix
+	public int pieceValue(final long enemies,final long blanks,final int position){//TODO speed test against a matrix
 		// after 5th file pawn values should increment by 1.5 imo. double pawns in same col should worth less, especially the blocked pawn 
 		int score=100, xPos=Coord.indexToX(position), yPos=Coord.indexToY(position);
 
-		if(board.getSquare(Coord.XYToIndex(Coord.indexToX(position),Coord.indexToY(position)+dy))!=Move.blank()){
+		if(0!=(blanks&(1L<<position))){
 			//This is triggered when there's a piece ahead of us. We're much less valuable when we're being blocked
 			score-=65;
 		}

@@ -35,16 +35,15 @@ public class Queen extends Piece{
 
 	/**
 	 * Placeholder for the incomplete method
-	 * @param board    The current Board state
+	 * @param enemies  Mask of enemy squares
+	 * @param blanks   Mask of blank squares
 	 * @param position Where the piece is on the board
 	 * @return The relative score for the AI
 	 */
 	//TODO Complete pieceValue()
 	@Override
-	public int pieceValue(Board board,int position){
+	public int pieceValue(final long enemies,final long blanks,final int position){
 		int score=2000;
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));
 		ArrayList<Integer> moves=getMoves(enemies,blanks,position);
 		score+=moves.size()*15;
 		return score;
