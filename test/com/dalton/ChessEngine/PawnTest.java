@@ -26,11 +26,14 @@ public class PawnTest{
 	Board board;
 	Engine engine;
 	ArrayList<Integer> gotMoves;
+	long enemies, blanks;
 
 	@Before
 	public void setup(){
 		board=new Board(Board.CLEAR);
 		gotMoves=new ArrayList<>();
+		enemies=0;
+		blanks=0;
 	}
 
 	@After
@@ -71,7 +74,10 @@ public class PawnTest{
 			//test first move, it can be one of two
 			board.setSquare(pawn.pieceCode,pawnPos.getIndex());
 			board.setAllNotMoved();
-			gotMoves=pawn.getMoves(board,pawnPos.getIndex());
+
+			enemies=board.alliedPieceMask(!team);
+			blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=pawn.getMoves(enemies,blanks,pawnPos.getIndex());
 			boolean singleSquareMove=UNSET, doubleSquareMove=UNSET;//move up or down 1 and 2 tiles respectively
 			for(int move: gotMoves){
 				int endX=Coord.indexToX(Move.getEndIndex(move));
@@ -119,15 +125,17 @@ public class PawnTest{
 	 */
 	public void testMoveAnatomyCommon(boolean team){
 		Coord piecePos=new Coord(4,4);
-		Pawn piece=new Pawn(team);
-		board.setSquare(piece.pieceCode,piecePos.getIndex());
-		gotMoves=piece.getMoves(board,piecePos.getIndex());
-		gotMoves=piece.getMoves(board,piecePos.getIndex());
+		Pawn pawn=new Pawn(team);
+		board.setSquare(pawn.pieceCode,piecePos.getIndex());
+
+		enemies=board.alliedPieceMask(!team);
+		blanks=~(enemies | board.alliedPieceMask(team));
+		gotMoves=pawn.getMoves(enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
 			assertEquals("Move should be of Normal type (0)",Move.normalMove,Move.getSpecialCode(move));
-			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(piece.pieceCode),Move.getPieceName(move));
+			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(pawn.pieceCode),Move.getPieceName(move));
 		}
 	}
 
@@ -159,7 +167,10 @@ public class PawnTest{
 			enemyPos=pawnPos.getShiftedCoord(-1,deltaY);//capture to the left
 			if(enemyPos.isSet()==SET){//if enemy is on the board
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());
-				gotMoves=pawn.getMoves(board,pawnPos.getIndex());
+
+				enemies=board.alliedPieceMask(!team);
+				blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=pawn.getMoves(enemies,blanks,pawnPos.getIndex());
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertNotEquals("Tile "+pawnPos+" Left: Did not find a capture move",0,captureMoves.size());
@@ -168,7 +179,10 @@ public class PawnTest{
 				assertNotEquals("Tile "+pawnPos+" Left: Did not find a standard move",0,standardMoves.size());
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece, same place as enemy
-				gotMoves=pawn.getMoves(board,pawnPos.getIndex());
+
+				enemies=board.alliedPieceMask(!team);
+				blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=pawn.getMoves(enemies,blanks,pawnPos.getIndex());
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertEquals("Tile "+pawnPos+" Left: Should not try to capture a friendly piece",0,captureMoves.size());
@@ -179,7 +193,10 @@ public class PawnTest{
 			enemyPos=pawnPos.getShiftedCoord(1,deltaY);//capture to the right
 			if(enemyPos.isSet()==SET){//if enemy is on the board
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());
-				gotMoves=pawn.getMoves(board,pawnPos.getIndex());
+
+				enemies=board.alliedPieceMask(!team);
+				blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=pawn.getMoves(enemies,blanks,pawnPos.getIndex());
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertNotEquals("Tile "+pawnPos+" Right: Did not find a capture move",0,captureMoves.size());
@@ -188,7 +205,10 @@ public class PawnTest{
 				assertNotEquals("Tile "+pawnPos+" Right: Did not find a standard move",0,standardMoves.size());
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece, same place as enemy
-				gotMoves=pawn.getMoves(board,pawnPos.getIndex());
+
+				enemies=board.alliedPieceMask(!team);
+				blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=pawn.getMoves(enemies,blanks,pawnPos.getIndex());
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertEquals("Tile "+pawnPos+" Right: Should not try to capture a friendly piece",0,captureMoves.size());
@@ -198,7 +218,10 @@ public class PawnTest{
 
 			enemyPos=pawnPos.getShiftedCoord(0,deltaY);//blocked
 			board.setSquare(enemy.pieceCode,enemyPos.getIndex());
-			gotMoves=pawn.getMoves(board,pawnPos.getIndex());
+
+			enemies=board.alliedPieceMask(!team);
+			blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=pawn.getMoves(enemies,blanks,pawnPos.getIndex());
 			captureMoves=findCaptures(gotMoves,board);
 			standardMoves=findJustMoves(gotMoves,board);
 			assertEquals("Tile "+pawnPos+" Should not find a capture move when pawn blocked and nothing to its diagonal"
@@ -206,7 +229,10 @@ public class PawnTest{
 			assertEquals("Tile "+pawnPos+" Should not find a standard move with pawn blocked",0,standardMoves.size());
 
 			board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece
-			gotMoves=pawn.getMoves(board,pawnPos.getIndex());
+
+			enemies=board.alliedPieceMask(!team);
+			blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=pawn.getMoves(enemies,blanks,pawnPos.getIndex());
 			captureMoves=findCaptures(gotMoves,board);
 			standardMoves=findJustMoves(gotMoves,board);
 			assertEquals("Tile "+pawnPos+" Should not find a capture move when pawn blocked and nothing to its diagonal"
@@ -324,7 +350,10 @@ public class PawnTest{
 			before=after.getShiftedCoord(0,-direction);//the row behind the last row, note the negative sign
 			String errMsgData="Tile "+before+"->"+after+" ";
 			board=new Board(beforeMove);
-			gotMoves=pawn.getMoves(board,before.getIndex());
+
+			long enemies=board.alliedPieceMask(!team);
+			long blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=pawn.getMoves(enemies,blanks,before.getIndex());
 			for(int move: gotMoves){
 				++foundPromotions[Move.getPieceCode(move)];//count each instance of each piece code
 			}

@@ -25,8 +25,7 @@ import static com.dalton.ChessEngine.UtilsForTests.*;
  */
 public class QueenTest{
 	Board board;
-	ArrayList<Integer> gotMoves;
-	ArrayList<Integer> filteredMoves;
+	ArrayList<Integer> gotMoves,filteredMoves;
 	ArrayList<Coord> gotCoords, expectedCoords;
 
 	@Before
@@ -68,7 +67,9 @@ public class QueenTest{
 		for(int i=0; i<TOTAL_SQUARES; ++i){//test on all tiles
 			piecePos=new Coord(i);
 			board.setSquare(queen.pieceCode,piecePos.getIndex());
-			gotMoves=queen.getMoves(board,piecePos.getIndex());
+			long enemies=board.alliedPieceMask(!team);
+			long blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=queen.getMoves(enemies,blanks,piecePos.getIndex());
 			gotCoords=getDestCoords(gotMoves);
 
 			expectedCoords=new ArrayList<>();
@@ -117,14 +118,16 @@ public class QueenTest{
 	 */
 	public void testMoveAnatomyCommon(boolean team){
 		Coord piecePos=new Coord(4,4);
-		Queen piece=new Queen(team);
-		board.setSquare(piece.pieceCode,piecePos.getIndex());
-		gotMoves=piece.getMoves(board,piecePos.getIndex());
+		Queen queen=new Queen(team);
+		board.setSquare(queen.pieceCode,piecePos.getIndex());
+		long enemies=board.alliedPieceMask(!team);
+		long blanks=~(enemies | board.alliedPieceMask(team));
+		gotMoves=queen.getMoves(enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
 			assertEquals("Move should be of Normal type (0)",Move.normalMove,Move.getSpecialCode(move));
-			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(piece.pieceCode),Move.getPieceName(move));
+			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(queen.pieceCode),Move.getPieceName(move));
 		}
 	}
 
@@ -165,7 +168,10 @@ public class QueenTest{
 
 			for(Coord enemyPos: reachableSquares){//Check ALL possible squares for captures
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());//Test capture
-				gotMoves=piece.getMoves(board,piecePos.getIndex());
+
+				long enemies=board.alliedPieceMask(!team);
+				long blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not have exactly one capture",1,filteredMoves.size());
 				assertEquals("Tile: "+piecePos+": capture move should end on the enemy piece",
@@ -175,7 +181,10 @@ public class QueenTest{
 						piece.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//Don't capture friendlies
-				gotMoves=piece.getMoves(board,piecePos.getIndex());
+
+				enemies=board.alliedPieceMask(!team);
+				blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not capture friendlies at "+enemyPos,0,filteredMoves.size());
 

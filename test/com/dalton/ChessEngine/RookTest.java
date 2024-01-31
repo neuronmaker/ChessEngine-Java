@@ -67,7 +67,9 @@ public class RookTest{
 		for(int i=0; i<TOTAL_SQUARES; ++i){//test on all tiles
 			piecePos=new Coord(i);
 			board.setSquare(rook.pieceCode,piecePos.getIndex());
-			gotMoves=rook.getMoves(board,piecePos.getIndex());
+			long enemies=board.alliedPieceMask(!team);
+			long blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=rook.getMoves(enemies,blanks,piecePos.getIndex());
 			gotCoords=getDestCoords(gotMoves);
 
 			expectedCoords=new ArrayList<>();
@@ -113,7 +115,10 @@ public class RookTest{
 		Coord piecePos=new Coord(4,4);
 		Rook piece=new Rook(team);
 		board.setSquare(piece.pieceCode,piecePos.getIndex());
-		gotMoves=piece.getMoves(board,piecePos.getIndex());
+
+		long enemies=board.alliedPieceMask(!team);
+		long blanks=~(enemies | board.alliedPieceMask(team));
+		gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
@@ -154,7 +159,9 @@ public class RookTest{
 
 			for(Coord enemyPos: reachableSquares){//Check ALL squares reachable by the Rook, one by one
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());//Test capture
-				gotMoves=piece.getMoves(board,piecePos.getIndex());
+				long enemies=board.alliedPieceMask(!team);
+				long blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not have exactly one capture",1,filteredMoves.size());
 				assertEquals("Tile: "+piecePos+": capture move should end on the enemy piece",
@@ -164,7 +171,9 @@ public class RookTest{
 						piece.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//Don't capture friendlies
-				gotMoves=piece.getMoves(board,piecePos.getIndex());
+				enemies=board.alliedPieceMask(!team);
+				blanks=~(enemies | board.alliedPieceMask(team));
+				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not capture friendlies at "+enemyPos+" Size of list should be 0"
 						,0,filteredMoves.size());

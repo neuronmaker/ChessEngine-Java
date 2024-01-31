@@ -72,14 +72,16 @@ public class KnightTest{
 	 */
 	public void testMoveAnatomyCommon(boolean team){
 		Coord piecePos=new Coord(4,4);
-		Knight piece=new Knight(team);
-		board.setSquare(piece.pieceCode,piecePos.getIndex());
-		gotMoves=piece.getMoves(board,piecePos.getIndex());
+		Knight knight=new Knight(team);
+		board.setSquare(knight.pieceCode,piecePos.getIndex());
+		long enemies=board.alliedPieceMask(!team);
+		long blanks=~(enemies | board.alliedPieceMask(team));
+		gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
 			assertEquals("Move should be of Normal type (1)",Move.normalMove,Move.getSpecialCode(move));
-			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(piece.pieceCode),Move.getPieceName(move));
+			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(knight.pieceCode),Move.getPieceName(move));
 		}
 	}
 
@@ -137,7 +139,9 @@ public class KnightTest{
 	private void testBasicMoveTemplate(Coord piecePos,boolean team){
 		Knight knight=new Knight(team);
 		board.setSquare(knight.pieceCode,piecePos.getIndex());
-		gotMoves=knight.getMoves(board,piecePos.getIndex());
+		long enemies=board.alliedPieceMask(!team);
+		long blanks=~(enemies | board.alliedPieceMask(team));
+		gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());
 		gotCoords=getDestCoords(gotMoves);
 		expectedCoords=new ArrayList<>();
 
@@ -178,11 +182,11 @@ public class KnightTest{
 	 * @param team The team of this Knight
 	 */
 	private void testCaptureCommon(boolean team){
-		Piece piece=new Knight(team), enemy=new Pawn(!team), friendly=new Pawn(team);
+		Piece knight=new Knight(team), enemy=new Pawn(!team), friendly=new Pawn(team);
 		Coord piecePos=new Coord(), coords;
 		for(int i=0; i<TOTAL_SQUARES; ++i){
 			piecePos.setIndex(i);
-			board.setSquare(piece.pieceCode,piecePos.getIndex());
+			board.setSquare(knight.pieceCode,piecePos.getIndex());
 			expectedCoords.clear();
 			for(int[] offset: legalOffset){//figure out how many offsets are on the board
 				coords=piecePos.getShiftedCoord(offset[0],offset[1]);
@@ -191,10 +195,13 @@ public class KnightTest{
 			for(Coord coord: expectedCoords){//fill reachable squares with enemies
 				board.setSquare(enemy.pieceCode,coord.getIndex());//these should each generate a capture
 			}
-			gotMoves=piece.getMoves(board,piecePos.getIndex());//get all moves
+
+			long enemies=board.alliedPieceMask(!team);
+			long blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());//get all moves
 			for(int j=0; j<gotMoves.size(); ++j){//make sure Piece Codes match
 				assertEquals("Move "+j+" "+Move.describe(gotMoves.get(j))+" should have PieceCode match the Knight"
-						,piece.pieceCode,Move.getPieceCode(gotMoves.get(j)));
+						,knight.pieceCode,Move.getPieceCode(gotMoves.get(j)));
 			}
 			filteredMoves=findCaptures(gotMoves,board);//just check for captures
 
@@ -209,10 +216,13 @@ public class KnightTest{
 			for(Coord coord: expectedCoords){//fill reachable squares with friendlies
 				board.setSquare(friendly.pieceCode,coord.getIndex());//these should not generate captures
 			}
-			gotMoves=piece.getMoves(board,piecePos.getIndex());//get all moves
+
+			enemies=board.alliedPieceMask(!team);
+			blanks=~(enemies | board.alliedPieceMask(team));
+			gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());//get all moves
 			for(int j=0; j<gotMoves.size(); ++j){//make sure Piece Codes match
 				assertEquals("Move "+j+" "+Move.describe(gotMoves.get(j))+" should have PieceCode match the Knight",
-						piece.pieceCode,Move.getPieceCode(gotMoves.get(j)));
+						knight.pieceCode,Move.getPieceCode(gotMoves.get(j)));
 			}
 			filteredMoves=findCaptures(gotMoves,board);//just check for captures
 
