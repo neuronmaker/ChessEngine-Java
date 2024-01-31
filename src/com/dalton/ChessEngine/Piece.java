@@ -21,9 +21,7 @@ public abstract class Piece{
 	}
 
 	public abstract int pieceValue(Board board,final int position);
-
-	public abstract ArrayList<Integer> getMoves(Board board,final int position);
-	//public abstract ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position);
+	public abstract ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position);
 
 	/**
 	 * Checks a Horizontal and a Vertical line for sliding pieces

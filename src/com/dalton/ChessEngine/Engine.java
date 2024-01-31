@@ -100,12 +100,13 @@ public class Engine{
 	public static ArrayList<Integer> getLegalMoves(Board board,boolean team){
 		ArrayList<Integer> moves=new ArrayList<>();
 		int i=(team==WHITE)? PieceCode.WHITE_OFFSET : PieceCode.BLACK_OFFSET,pawn,king,index;
-		long enemies=board.alliedPieceMask(!team),blanks=~(enemies | board.alliedPieceMask(team)),positions;
+		long positions,enemies=board.alliedPieceMask(!team),
+				blanks=~(enemies | board.alliedPieceMask(team));//add the enemies and friends together, invert to get blanks
 		for(; i<PieceCode.PIECE_TYPES; i+=2){
 			positions=board.searchPiece(i);//for each piece code
 			index=Coord.maskToIndex(positions);
 			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-				moves.addAll(PieceCode.pieceObj(i).getMoves(board,index));//get all basic moves for every allied piece
+				moves.addAll(PieceCode.pieceObj(i).getMoves(enemies,blanks,index));//get all basic moves for every allied piece
 				index=Coord.maskToNextIndex(positions,index);//find next location
 			}
 		}
@@ -149,7 +150,7 @@ public class Engine{
 		switch(pieceCode){//special moves
 			case PieceCode.KingW://Kings can castle
 			case PieceCode.KingB://There is only one King on the board
-				moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(board,index));//get all standard moves
+				moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(enemies,blanks,index));//get all standard moves
 				moves.addAll(((King) PieceCode.pieceObj(pieceCode)).getCastles(board));//get castling moves
 				return moves;//Only one king so we are done
 			case PieceCode.PawnW://select the EnPassant filter for either pawn
@@ -168,7 +169,7 @@ public class Engine{
 			}
 		}
 		while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-			moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(board,index));//get all normal moves for every one of these pieces
+			moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(enemies,blanks,index));//get all normal moves for every one of these pieces
 			index=Coord.maskToNextIndex(positions,index);//find next location
 		}
 		return moves;

@@ -116,16 +116,15 @@ public class King extends Piece{
 	}
 
 	/**
-	 * The move generator method for King
-	 * @param board    The current state of the board
+	 * Move generator for the King
+	 * @param enemies  Mask of enemy squares
+	 * @param blanks   Mask of blank squares
 	 * @param position The position index to check from
 	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(Board board,int position){
+	public ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position){
 		ArrayList<Integer> moves=new ArrayList<>();
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));
 
 		//Check each direction
 		for(int[] dir: offset){
@@ -173,9 +172,11 @@ public class King extends Piece{
 	public boolean isInCheck(Board board,int position){//todo change this to use an attacking mask for speed, ray cast from king instead of checking all enemy moves
 		//Check if any enemy pieces can can attack the King's position
 		for(int piece=(!team)? 0 : 1; piece<PieceCode.KingW; piece+=2){//get all pieces for other team by integer code
+			final long theirEnemies=board.alliedPieceMask(team);//get this team as the other's enemies
+			final long blanks=~(theirEnemies | board.alliedPieceMask(!team));//get all squares that are blank
 			int pieceIndex=Coord.maskToIndex(board.searchPiece(piece));//locate the piece
 			while(pieceIndex!=Coord.ERROR_INDEX){//while there is a piece to find
-				ArrayList<Integer> enemyMoves=PieceCode.pieceObj(piece).getMoves(board,pieceIndex);//Get the legal moves from the enemy piece
+				ArrayList<Integer> enemyMoves=PieceCode.pieceObj(piece).getMoves(theirEnemies,blanks,pieceIndex);//Get the legal moves from the enemy piece
 				//todo Filter out pieces via bit masking
 				for(int enemyMove: enemyMoves){//Check if any enemy move ends at the King's position
 					if(Move.getEndIndex(enemyMove)==position) return true; //King is in check

@@ -41,22 +41,22 @@ public class Rook extends Piece{
 	//TODO finish this
 	@Override
 	public int pieceValue(final Board board,final int position){
-		ArrayList<Integer> moves=getMoves(board,position);
 		int score=500;
+		long enemies=board.alliedPieceMask(!team);
+		long blanks=~(enemies | board.alliedPieceMask(team));//add the enemies and friends together, invert to get blanks
+		ArrayList<Integer> moves=getMoves(enemies,blanks,position);
 		score+=moves.size()*10;
 		return score;
 	}
 
 	/**
 	 * The move generator method for Rook
-	 * @param board    The current state of the board
-	 * @param position The position index to check from
+	 * @param enemies  Mask of enemy squares
+	 * @param blanks   Mask of blank squares
 	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(Board board,int position){
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));//add the enemies and friends together, invert to get blanks
+	public ArrayList<Integer> getMoves(final long enemies,final long blanks,int position){
 		return HVLineCheck(enemies,blanks,position);
 	}
 

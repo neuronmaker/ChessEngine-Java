@@ -16,6 +16,8 @@ import static com.dalton.ChessEngine.Types.*;
  */
 public class Pawn extends Piece{
 	private final int dy;
+	/** Used for this Pawn to know where it starts off */
+	private final long startingRank;
 	/** Bit masks used for fast detection of pawns that can be promoted */
 	public static final long
 			WHITE_Promotion_mask=0b0000000011111111000000000000000000000000000000000000000000000000L,
@@ -32,6 +34,7 @@ public class Pawn extends Piece{
 	public Pawn(boolean team){
 		super((team==WHITE)? PieceCode.PawnW : PieceCode.PawnB);
 		dy=(team==WHITE)? 1 : -1;//WHITE pawns move up, BLACK pawns move down
+		startingRank=(team==WHITE)?BLACK_Promotion_mask:WHITE_Promotion_mask;//starting masks are opposite of promotion masks
 	}
 
 	/**
@@ -73,21 +76,20 @@ public class Pawn extends Piece{
 
 	/**
 	 * The move generator method for Pawns
-	 * @param board    The current state of the board
+	 * @param enemies  Mask of enemy squares
+	 * @param blanks   Mask of blank squares
 	 * @param position The position index to check from
 	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(Board board,final int position){//todo convert to a enemies and blank mask system
+	public ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position){
 		ArrayList<Integer> moves=new ArrayList<>();
 		long diagLeftMask=(1L << Coord.shiftIndex(position,-1,dy)),//diagonally to the left, purely for readability, generates the bitmask for the square
-				diagRightMask=(1L << Coord.shiftIndex(position,1,dy));//diagonally to the right, purely for readability, generates the bitmask for the square
-		long enemies=board.alliedPieceMask(!team);//get all squares controlled by the enemy
-
+				diagRightMask=(1L << Coord.shiftIndex(position,1,dy));//diagonally to the right,todo make these generated only if not on edges... saves cycles later
 		//normal moves
-		if(board.getSquare(Coord.shiftIndex(position,0,dy))==PieceCode.Blank){//single move if not blocked todo speed test against use blank square checks
+		if(0!=(blanks & (1L << Coord.shiftIndex(position,0,dy)))){//single move if not blocked
 			moves.add(Move.encodeNormal(pieceCode,position,Coord.shiftIndex(position,0,dy)));//single move in direction of travel for this pawn
-			if(board.getSquare(Coord.shiftIndex(position,0,2*dy))==PieceCode.Blank && board.hasNotMoved(position)){//if first move and not blocked
+			if(0!=(blanks & (1L << Coord.shiftIndex(position,0,2*dy))) && 0!=(startingRank &(1L<<position))){//if not blocked and on starting rank
 				moves.add(Move.encode(Move.pawnDoubleMove,pieceCode,position,Coord.shiftIndex(position,0,2*dy)));//double move on first move
 			}
 		}
