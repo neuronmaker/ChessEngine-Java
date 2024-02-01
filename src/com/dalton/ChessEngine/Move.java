@@ -245,6 +245,7 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	 */
 	public static String describe(int move){//TODO update to reflect bit masking search
 		String res="Move{Special: ";
+		if(isPawnPromotion(move)) res+="Pawn Promote: ";//prepend promotion if it happens
 		res+=switch(getSpecialCode(move)){
 			case blankMove -> "Blank Move";
 			case kSideCastle -> "King Side Castle";

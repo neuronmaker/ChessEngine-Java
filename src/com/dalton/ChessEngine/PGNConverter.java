@@ -45,7 +45,7 @@ public class PGNConverter{
 				dest=Coord.PGNToIndex(PGN.substring(i,i+2));
 				break;//break the loop, we found what we are looking for
 			}
-		}
+		}//todo detect pawn promotions
 		if(dest==Coord.ERROR_INDEX) return Move.blankMove;//if we did not find a destination, early escape
 		//otherwise, we need to go and hunt for things like differentiation
 		for(; i>=0; --i){//Continue from where we found the coordinate, hunt for differentiations, piece initials, and captures
@@ -149,6 +149,7 @@ public class PGNConverter{
 			}
 		}
 		if(code==PieceCode.PawnW||code==PieceCode.PawnB) return pgn;//for pawns, omit the piece initial
+		else if(Move.isPawnPromotion(move)) return pgn+"="+charUppercase(PieceCode.decodeChar(code));//append the promoted Piece abbreviation if a promotion
 		else return charUppercase(PieceCode.decodeChar(code))+pgn;//prepend the uppercase piece initial, return the token
 	}
 

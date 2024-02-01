@@ -141,7 +141,7 @@ public class Pawn extends Piece{
 			start=Move.getStartIndex(moves.get(i));//TODO: replace this with more masking madness
 			end=Move.getEndIndex(moves.get(i));
 			specialCode=Move.getSpecialCode(moves.get(i));
-			for(int j=pieceCode+2; j<PieceCode.PIECE_TYPES; j+=2){//this is a weird one, I chose to make BLACK and WHITE piece codes odd and even respectively, this works for the same reason a bit mask works, the 1's bit acts like a team toggle and by offsetting we can select the team for (almost) free. We also can't promote to kings
+			for(int j=pieceCode+2; j<PieceCode.KingW; j+=2){//this is a weird one, I chose to make BLACK and WHITE piece codes odd and even respectively, this works for the same reason a bit mask works, the 1's bit acts like a team toggle and by offsetting we can select the team for (almost) free. We also can't promote to kings
 				promotions.add(Move.encode(specialCode | Move.pawnPromote,j,start,end));//copy everything but iterate all eligible new piece codes and toggle the promotion bit
 			}
 		}
