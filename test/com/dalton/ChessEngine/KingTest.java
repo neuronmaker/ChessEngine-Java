@@ -130,7 +130,8 @@ public class KingTest{
 		board.setSquare(king.pieceCode,piecePos.getIndex());
 		long enemies=board.alliedPieceMask(!team);
 		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=king.getMoves(enemies,blanks,piecePos.getIndex());
+		gotMoves=new ArrayList<>();
+		king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 
 		for(int gotMove: gotMoves){//check the piece code and special code
 			assertEquals("Move should be of Normal type (0)",Move.normalMove,Move.getSpecialCode(gotMove));
@@ -179,7 +180,8 @@ public class KingTest{
 		board.setSquare(king.pieceCode,piecePos.getIndex());
 		long enemies=board.alliedPieceMask(!team);
 		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=king.getMoves(enemies,blanks,piecePos.getIndex());
+		gotMoves=new ArrayList<>();
+		king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
@@ -326,7 +328,8 @@ public class KingTest{
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());//test captures
 				long enemies=board.alliedPieceMask(!team);
 				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=king.getMoves(enemies,blanks,piecePos.getIndex());//search all pseudo legal moves
+				gotMoves=new ArrayList<>();
+				king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());//search all pseudo legal moves
 				filteredMoves=findCaptures(gotMoves,board);//Filter out capture moves (should only be one of these because only one enemy)
 				assertEquals("Tile: "+piecePos+" There should be exactly one capture at:"+enemyPos,1,filteredMoves.size());//should capture the enemy
 				assertEquals("Tile: "+piecePos+" End position should match the enemy piece at:"+enemyPos,enemyPos.toString(),Coord.orderedPair(Move.getEndIndex(filteredMoves.get(0))));//match destinations
@@ -336,7 +339,8 @@ public class KingTest{
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//set to friendly unit
 				enemies=board.alliedPieceMask(!team);
 				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=king.getMoves(enemies,blanks,piecePos.getIndex());//search all pseudo legal moves
+				gotMoves=new ArrayList<>();
+				king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());//search all pseudo legal moves
 				filteredMoves=findCaptures(gotMoves,board);//Filter out capture moves (Should not find any because we should not capture allied pieces)
 				assertEquals("Tile: "+piecePos+" Should not have any capture moves against friendlies at:"+enemyPos,0,filteredMoves.size());//DO NOT CAPTURE YOUR OWN TEAMMATES
 
@@ -348,7 +352,8 @@ public class KingTest{
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());
 				long enemies=board.alliedPieceMask(!team);
 				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=king.getMoves(enemies,blanks,piecePos.getIndex());
+				gotMoves=new ArrayList<>();
+				king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);//Filter out capture moves (enemy is outside of King's attack range so should not filter out any capture moves)
 				assertEquals("Tile: "+piecePos+" There should be no captures when the enemy is outside the range of the King at:"+enemyPos,0,filteredMoves.size());//Enemy is out of range, cannot capture
 

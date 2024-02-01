@@ -69,7 +69,8 @@ public class QueenTest{
 			board.setSquare(queen.pieceCode,piecePos.getIndex());
 			long enemies=board.alliedPieceMask(!team);
 			long blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=queen.getMoves(enemies,blanks,piecePos.getIndex());
+			gotMoves=new ArrayList<>();
+			queen.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 			gotCoords=getDestCoords(gotMoves);
 
 			expectedCoords=new ArrayList<>();
@@ -122,7 +123,8 @@ public class QueenTest{
 		board.setSquare(queen.pieceCode,piecePos.getIndex());
 		long enemies=board.alliedPieceMask(!team);
 		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=queen.getMoves(enemies,blanks,piecePos.getIndex());
+		gotMoves=new ArrayList<>();
+		queen.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
@@ -171,7 +173,8 @@ public class QueenTest{
 
 				long enemies=board.alliedPieceMask(!team);
 				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
+				gotMoves=new ArrayList<>();
+				piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not have exactly one capture",1,filteredMoves.size());
 				assertEquals("Tile: "+piecePos+": capture move should end on the enemy piece",
@@ -184,7 +187,8 @@ public class QueenTest{
 
 				enemies=board.alliedPieceMask(!team);
 				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
+				gotMoves=new ArrayList<>();
+				piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not capture friendlies at "+enemyPos,0,filteredMoves.size());
 

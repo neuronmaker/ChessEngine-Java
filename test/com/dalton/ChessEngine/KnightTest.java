@@ -76,7 +76,8 @@ public class KnightTest{
 		board.setSquare(knight.pieceCode,piecePos.getIndex());
 		long enemies=board.alliedPieceMask(!team);
 		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());
+		gotMoves=new ArrayList<>();
+		knight.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
@@ -141,7 +142,8 @@ public class KnightTest{
 		board.setSquare(knight.pieceCode,piecePos.getIndex());
 		long enemies=board.alliedPieceMask(!team);
 		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());
+		gotMoves=new ArrayList<>();
+		knight.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 		gotCoords=getDestCoords(gotMoves);
 		expectedCoords=new ArrayList<>();
 
@@ -198,7 +200,8 @@ public class KnightTest{
 
 			long enemies=board.alliedPieceMask(!team);
 			long blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());//get all moves
+			gotMoves=new ArrayList<>();
+			knight.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());//get all moves
 			for(int j=0; j<gotMoves.size(); ++j){//make sure Piece Codes match
 				assertEquals("Move "+j+" "+Move.describe(gotMoves.get(j))+" should have PieceCode match the Knight"
 						,knight.pieceCode,Move.getPieceCode(gotMoves.get(j)));
@@ -219,7 +222,8 @@ public class KnightTest{
 
 			enemies=board.alliedPieceMask(!team);
 			blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=knight.getMoves(enemies,blanks,piecePos.getIndex());//get all moves
+			gotMoves=new ArrayList<>();
+			knight.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 			for(int j=0; j<gotMoves.size(); ++j){//make sure Piece Codes match
 				assertEquals("Move "+j+" "+Move.describe(gotMoves.get(j))+" should have PieceCode match the Knight",
 						knight.pieceCode,Move.getPieceCode(gotMoves.get(j)));

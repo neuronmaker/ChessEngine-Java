@@ -69,7 +69,8 @@ public class RookTest{
 			board.setSquare(rook.pieceCode,piecePos.getIndex());
 			long enemies=board.alliedPieceMask(!team);
 			long blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=rook.getMoves(enemies,blanks,piecePos.getIndex());
+			gotMoves=new ArrayList<>();
+			rook.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 			gotCoords=getDestCoords(gotMoves);
 
 			expectedCoords=new ArrayList<>();
@@ -118,7 +119,8 @@ public class RookTest{
 
 		long enemies=board.alliedPieceMask(!team);
 		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
+		gotMoves=new ArrayList<>();
+		piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
@@ -161,7 +163,8 @@ public class RookTest{
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());//Test capture
 				long enemies=board.alliedPieceMask(!team);
 				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
+				gotMoves=new ArrayList<>();
+				piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not have exactly one capture",1,filteredMoves.size());
 				assertEquals("Tile: "+piecePos+": capture move should end on the enemy piece",
@@ -173,7 +176,8 @@ public class RookTest{
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//Don't capture friendlies
 				enemies=board.alliedPieceMask(!team);
 				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=piece.getMoves(enemies,blanks,piecePos.getIndex());
+				gotMoves=new ArrayList<>();
+				piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not capture friendlies at "+enemyPos+" Size of list should be 0"
 						,0,filteredMoves.size());
