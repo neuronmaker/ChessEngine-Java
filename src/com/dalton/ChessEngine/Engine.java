@@ -108,7 +108,7 @@ public class Engine{
 			positions=board.searchPiece(i);//for each piece code
 			index=Coord.maskToIndex(positions);
 			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-				moves.addAll(PieceCode.pieceObj(i).getMoves(moves,enemies,blanks,index));//get all basic moves for every allied piece
+				PieceCode.pieceObj(i).getMoves(moves,enemies,blanks,index);//get all basic moves for every allied piece
 				index=Coord.maskToNextIndex(positions,index);//find next location
 			}
 		}

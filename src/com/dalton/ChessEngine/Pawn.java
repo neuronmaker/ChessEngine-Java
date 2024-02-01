@@ -106,8 +106,9 @@ public class Pawn extends Piece{
 		if(team==WHITE && 0!=(WHITE_Promotion_mask & (1L << position)) ||//Mask WHITE for promotion eligibility
 				team==BLACK && 0!=(BLACK_Promotion_mask & (1L << position))){//Mask BLACK for promotion eligibility, OR saves one jump more often than putting two ifs and selecting different promotion methods
 			moves.addAll(generatePromotions(tempMoves));//if we can promote, force promotion
+		}else{
+			moves.addAll(tempMoves);//if no promotion, then return the normal moves list
 		}
-		moves.addAll(tempMoves);//if no promotion, then return the normal moves list
 	}
 
 	/**
