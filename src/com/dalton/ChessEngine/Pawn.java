@@ -77,21 +77,21 @@ public class Pawn extends Piece{
 
 	/**
 	 * The move generator method for Pawns
+	 * @param moves    Reference to the Move list
 	 * @param enemies  Mask of enemy squares
 	 * @param blanks   Mask of blank squares
 	 * @param position The position index to check from
-	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position){
-		ArrayList<Integer> moves=new ArrayList<>();
+	public void getMoves(ArrayList<Integer> moves,final long enemies,final long blanks,final int position){
+		ArrayList<Integer> tempMoves=new ArrayList<>();
 		long diagLeftMask=(1L << Coord.shiftIndex(position,-1,dy)),//diagonally to the left, purely for readability, generates the bitmask for the square
 				diagRightMask=(1L << Coord.shiftIndex(position,1,dy));//diagonally to the right,todo make these generated only if not on edges... saves cycles later
 		//normal moves
 		if(0!=(blanks & (1L << Coord.shiftIndex(position,0,dy)))){//single move if not blocked
-			moves.add(Move.encodeNormal(pieceCode,position,Coord.shiftIndex(position,0,dy)));//single move in direction of travel for this pawn
+			tempMoves.add(Move.encodeNormal(pieceCode,position,Coord.shiftIndex(position,0,dy)));//single move in direction of travel for this pawn
 			if(0!=(blanks & (1L << Coord.shiftIndex(position,0,2*dy))) && 0!=(startingRank &(1L<<position))){//if not blocked and on starting rank
-				moves.add(Move.encode(Move.pawnDoubleMove,pieceCode,position,Coord.shiftIndex(position,0,2*dy)));//double move on first move
+				tempMoves.add(Move.encode(Move.pawnDoubleMove,pieceCode,position,Coord.shiftIndex(position,0,2*dy)));//double move on first move
 			}
 		}
 
@@ -99,16 +99,15 @@ public class Pawn extends Piece{
 		boolean edgeRight=Coord.indexToX(position)==7;
 
 		//captures (with Yoda code)
-		if(0!=(enemies & diagLeftMask) && !edgeLeft) moves.add(Move.encode(Move.capture,pieceCode,position,Coord.shiftIndex(position,-1,dy)));//capture if enemy piece diagonally to the left
-		if(0!=(enemies & diagRightMask) && !edgeRight) moves.add(Move.encode(Move.capture,pieceCode,position,Coord.shiftIndex(position,1,dy)));//capture if enemy piece diagonally to the right
+		if(0!=(enemies & diagLeftMask) && !edgeLeft) tempMoves.add(Move.encode(Move.capture,pieceCode,position,Coord.shiftIndex(position,-1,dy)));//capture if enemy piece diagonally to the left
+		if(0!=(enemies & diagRightMask) && !edgeRight) tempMoves.add(Move.encode(Move.capture,pieceCode,position,Coord.shiftIndex(position,1,dy)));//capture if enemy piece diagonally to the right
 
 		//promotion
 		if(team==WHITE && 0!=(WHITE_Promotion_mask & (1L << position)) ||//Mask WHITE for promotion eligibility
 				team==BLACK && 0!=(BLACK_Promotion_mask & (1L << position))){//Mask BLACK for promotion eligibility, OR saves one jump more often than putting two ifs and selecting different promotion methods
-			return generatePromotions(moves);//if we can promote, force promotion
+			moves.addAll(generatePromotions(tempMoves));//if we can promote, force promotion
 		}
-
-		return moves;//if no promotion, then return the normal moves list
+		moves.addAll(tempMoves);//if no promotion, then return the normal moves list
 	}
 
 	/**

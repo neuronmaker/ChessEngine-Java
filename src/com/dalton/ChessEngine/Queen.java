@@ -44,27 +44,25 @@ public class Queen extends Piece{
 	@Override
 	public int pieceValue(final long enemies,final long blanks,final int position){
 		int score=2000;
-		ArrayList<Integer> moves=getMoves(enemies,blanks,position);
+		ArrayList<Integer> moves=new ArrayList<>();
+		getMoves(moves,enemies,blanks,position);
 		score+=moves.size()*15;
 		return score;
 	}
 
 	/**
 	 * The move generator method for Queen
+	 * @param moves    Reference to the Move list
 	 * @param enemies  Mask of enemy squares
 	 * @param blanks   Mask of blank squares
 	 * @param position The position index to check from
-	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position){//todo idea: split into table of rays and generate all rays with all blocked lengths
-		ArrayList<Integer> moves=new ArrayList<>();
+	public void getMoves(ArrayList<Integer> moves,final long enemies,final long blanks,final int position){//todo idea: split into table of rays and generate all rays with all blocked lengths
 		//Bishop moves
-		moves.addAll(diagLineCheck(enemies,blanks,position));
+		diagLineCheck(moves,enemies,blanks,position);
 		//Rook moves
-		moves.addAll(HVLineCheck(enemies,blanks,position));
-
-		return moves;
+		HVLineCheck(moves,enemies,blanks,position);
 	}
 
 	/**

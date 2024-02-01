@@ -100,7 +100,7 @@ public class Engine{
 	 * @return ArrayList of moves encoded into integers
 	 */
 	public static ArrayList<Integer> getLegalMoves(Board board,boolean team){
-		ArrayList<Integer> moves=new ArrayList<>();
+		ArrayList<Integer> moves=new ArrayList<>();//Pass this single list around by reference, fewer memory allocations
 		int i=(team==WHITE)? PieceCode.WHITE_OFFSET : PieceCode.BLACK_OFFSET,pawn,king,index;
 		long positions,enemies=board.alliedPieceMask(!team),
 				blanks=~(enemies | board.alliedPieceMask(team));//add the enemies and friends together, invert to get blanks
@@ -108,7 +108,7 @@ public class Engine{
 			positions=board.searchPiece(i);//for each piece code
 			index=Coord.maskToIndex(positions);
 			while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-				moves.addAll(PieceCode.pieceObj(i).getMoves(enemies,blanks,index));//get all basic moves for every allied piece
+				moves.addAll(PieceCode.pieceObj(i).getMoves(moves,enemies,blanks,index));//get all basic moves for every allied piece
 				index=Coord.maskToNextIndex(positions,index);//find next location
 			}
 		}
@@ -143,7 +143,7 @@ public class Engine{
 	 * @see PieceCode
 	 */
 	public static ArrayList<Integer> getLegalMoves(Board board,int pieceCode){
-		ArrayList<Integer> moves=new ArrayList<>();
+		ArrayList<Integer> moves=new ArrayList<>();//Pass this single list around by reference, fewer memory allocations
 		long positions=board.searchPiece(pieceCode);//for each piece code
 		long enemies=board.alliedPieceMask(!PieceCode.decodeTeam(pieceCode)),
 				blanks=~(enemies | board.alliedPieceMask(PieceCode.decodeTeam(pieceCode)));
@@ -152,7 +152,7 @@ public class Engine{
 		switch(pieceCode){//special moves
 			case PieceCode.KingW://Kings can castle
 			case PieceCode.KingB://There is only one King on the board
-				moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(enemies,blanks,index));//get all standard moves
+				PieceCode.pieceObj(pieceCode).getMoves(moves,enemies,blanks,index);//get all standard moves
 				moves.addAll(((King) PieceCode.pieceObj(pieceCode)).getCastles(board));//get castling moves
 				return moves;//Only one king so we are done
 			case PieceCode.PawnW://select the EnPassant filter for either pawn
@@ -171,7 +171,7 @@ public class Engine{
 			}
 		}
 		while(index!=Coord.ERROR_INDEX){//search all positions that piece is found at
-			moves.addAll(PieceCode.pieceObj(pieceCode).getMoves(enemies,blanks,index));//get all normal moves for every one of these pieces
+			PieceCode.pieceObj(pieceCode).getMoves(moves,enemies,blanks,index);//get all normal moves for every one of these pieces
 			index=Coord.maskToNextIndex(positions,index);//find next location
 		}
 		return moves;

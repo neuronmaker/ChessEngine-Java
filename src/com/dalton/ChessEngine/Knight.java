@@ -119,14 +119,13 @@ public class Knight extends Piece{
 
 	/**
 	 * The move generator method for Knight
+	 * @param moves    Reference to the Move list
 	 * @param enemies  The positions of all enemies in a bitmask
 	 * @param blanks   The position of all blank squares in a bitmask
 	 * @param position The position index to check from
-	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
-	public ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position){
-		ArrayList<Integer> moves=new ArrayList<>();
+	public void getMoves(ArrayList<Integer> moves,final long enemies,final long blanks,final int position){
 		//Check each direction
 		for(int[] dir: offset){
 			int destIndex=Coord.shiftIndex(position,dir[0],dir[1]);
@@ -134,7 +133,6 @@ public class Knight extends Piece{
 			if(0!=(blanks & (1L << destIndex))) moves.add(Move.encodeNormal(this.pieceCode,position,destIndex));//if blank, then just move
 			else if(0!=(enemies & (1L << destIndex))) moves.add(Move.encode(Move.capture,this.pieceCode,position,destIndex));//Only capture the other team
 		}
-		return moves;
 	}
 
 	/**

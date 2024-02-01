@@ -21,17 +21,16 @@ public abstract class Piece{
 	}
 
 	public abstract int pieceValue(final long enemies,final long blanks,final int position);
-	public abstract ArrayList<Integer> getMoves(final long enemies,final long blanks,final int position);
+	public abstract void getMoves(ArrayList<Integer> moves,final long enemies,final long blanks,final int position);
 
 	/**
 	 * Checks a Horizontal and a Vertical line for sliding pieces
+	 * @param moves    Reference to the Move list
 	 * @param enemies  A bitmask of the enemies on the board
 	 * @param blanks   A bitmask of the blank squares
 	 * @param position The current position of this piece
-	 * @return A list of encoded Move integers
 	 */
-	protected ArrayList<Integer> HVLineCheck(final long enemies,final long blanks,final int position){
-		ArrayList<Integer> moves=new ArrayList<>();
+	protected void HVLineCheck(ArrayList<Integer> moves,final long enemies,final long blanks,final int position){
 		int x=Coord.indexToX(position), y=Coord.indexToY(position);
 		//horizontal moves
 		int i=position-1;//start behind the position,
@@ -64,18 +63,16 @@ public abstract class Piece{
 		if(i<Coord.XYToIndex(x,BOARD_SIZE) && (0!=(enemies & (1L << i)))){//if we found an enemy and the loop exited early
 			moves.add(Move.encode(Move.capture,pieceCode,position,i));//then make a capture
 		}
-		return moves;
 	}
 
 	/**
 	 * Checks both diagonal lines for sliding pieces
+	 * @param moves    Reference to the Move list
 	 * @param enemies  A bitmask of the enemies on the board
 	 * @param blanks   A bitmask of the blank squares
 	 * @param position The current position of this piece
-	 * @return A list of encoded Move integers
 	 */
-	protected ArrayList<Integer> diagLineCheck(final long enemies,final long blanks,final int position){
-		ArrayList<Integer> moves=new ArrayList<>();
+	protected void diagLineCheck(ArrayList<Integer> moves,final long enemies,final long blanks,final int position){
 		final int x=Coord.indexToX(position), y=Coord.indexToY(position);
 		//North West
 		int i=position+NW;//iterate ahead of position
@@ -112,8 +109,6 @@ public abstract class Piece{
 		if(Coord.indexToX(i)<BOARD_SIZE && Coord.indexToX(i)>x && i>=0 && (0!=(enemies & (1L << i)))){//if we found an enemy and the loop exited early
 			moves.add(Move.encode(Move.capture,pieceCode,position,i));//then make a capture
 		}
-
-		return moves;
 	}
 
 	/**
