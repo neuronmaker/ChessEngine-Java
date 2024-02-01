@@ -72,13 +72,13 @@ public class GameController{
 					break;
 				case "ai":
 				case "-ai":
-					if(makeAiMove(playerColor)==SUCCESS) playerColor=!playerColor;
+					if(makeAiMove()==SUCCESS) playerColor=!playerColor;
 					showBoard();
 					break;
 				default:
 					if((isWhiteAI && playerColor==WHITE) || (isBlackAI && playerColor==BLACK)){//if player is AI
 						System.out.println("Player is AI, making a move");
-						if(makeAiMove(playerColor)==SUCCESS) playerColor=!playerColor;//attempt to make a move
+						if(makeAiMove()==SUCCESS) playerColor=!playerColor;//attempt to make a move
 					}else{//if a human player
 						if(parseMove(command)==SUCCESS) playerColor=!playerColor;//attempt to get move from user
 					}
@@ -110,12 +110,11 @@ public class GameController{
 	}
 	/**
 	 * Tells the AI go generate a move, and the applies it to the board
-	 * @param AIColor WHITE or BLACK
 	 * @return True upon success, False if there was a problem
 	 */
-	public boolean makeAiMove(boolean AIColor){
+	public boolean makeAiMove(){
 		System.out.println("Making AI move");
-		int move=engine.getBestMove(new Board(board),AIColor,(playerColor==WHITE)? WhiteAILevel : BlackAILevel);//Tell the engine what maximum depth to search
+		int move=engine.getBestMove(new Board(board),playerColor,(playerColor==WHITE)? WhiteAILevel : BlackAILevel);//Tell the engine what maximum depth to search
 		System.out.println("Player: "+Types.getTeamString(playerColor)+": "+PGNConverter.getPGN(board,move)+": "+Move.describe(move));
 		if(Move.isBlank(move)) return false;//if no legal moves found, flag error
 		makeMove(move);//if a move was not blank, make it
