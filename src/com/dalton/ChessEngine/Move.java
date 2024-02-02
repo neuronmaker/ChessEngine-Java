@@ -230,6 +230,19 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	}
 
 	/**
+	 * Takes a move and turns it into a promotion if it's not already
+	 * @param move  The move to force a promotion
+	 * @param piece The Piece Code to promote too
+	 * @return The same move but forced into a promotion
+	 */
+	public static int makePromotion(int move, int piece){
+		move|=pawnPromote << (positionBits*2+pieceCodeBits);//toggle the promotion bit to a 1 by shifting the mask to the correct position
+		move&=~CODE_MASK;//blank piece code by inverting the mask and using bitwise and
+		move|=piece << (positionBits*2);//shift over by 2 moves, make room for start and end moves
+		return move;//combine them into one single integer with bitwise or operations
+	}
+
+	/**
 	 * Shorthand for checking if a move is blank or if it's valid
 	 * @param move The encoded move integer to check
 	 * @return True if a blank move, False if a move was encoded
@@ -245,20 +258,20 @@ public abstract class Move{//class can't be instantiated, but it has static help
 	 */
 	public static String describe(int move){//TODO update to reflect bit masking search
 		String res="Move{Special: ";
-		if(isPawnPromotion(move)) res+="Pawn Promote: ";//prepend promotion if it happens
+		if(isPawnPromotion(move)) res+="Pawn Promote - ";//prepend promotion if it happens
 		res+=switch(getSpecialCode(move)){
 			case blankMove -> "Blank Move";
 			case kSideCastle -> "King Side Castle";
 			case qSideCastle -> "Queen Side Castle";
 			case EnPassantCapture -> "EnPassant Capture";
-			case pawnDoubleMove -> "Pawn double move on start";
-			case capture -> "capture";
+			case pawnDoubleMove -> "Pawn double move";
+			case capture -> "Capture";
 			default -> "Normal Move";
 		};
 		res+=", ";
 		res+="Piece: "+PieceCode.decodePieceName(getPieceCode(move))+", ";
-		res+="Start"+Coord.orderedPair(getStartIndex(move))+", ";
-		res+="End"+Coord.orderedPair(getEndIndex(move))+"}";
+		res+="Start "+Coord.indexToPGN(getStartIndex(move))+Coord.orderedPair(getStartIndex(move))+", ";
+		res+="End "+Coord.indexToPGN(getEndIndex(move))+Coord.orderedPair(getEndIndex(move))+"}";
 		return res;
 	}
 }

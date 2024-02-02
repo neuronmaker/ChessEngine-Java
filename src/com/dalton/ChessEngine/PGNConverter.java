@@ -28,24 +28,30 @@ public class PGNConverter{
 	public static int getMove(Board board,String PGN,boolean player){
 		ArrayList<Integer> moves;
 		boolean capture=false;//is this move a capture
-		char pieceInitial='P';//default to a pawn
+		char pieceInitial='P',promotedInitial=' ';//default to a pawn and no promotion
 		int dest=Coord.ERROR_INDEX;//default state is a failure unless we find a valid PGN token
 		int startX=Coord.ERROR_INDEX, startY=Coord.ERROR_INDEX;//set x and y to error unless needed down the line
-		int diffMethod=noDiff;//we assume no differentiation by default
+		int diffMethod=noDiff,candidate;//we assume no differentiation by default
 		switch(PGN){
 			case "0-0":
 				return Move.encodeCastle(Move.kSideCastle,player);
 			case "0-0-0":
 				return Move.encodeCastle(Move.qSideCastle,player);
 		}
-		int i=PGN.length()-1;//hunt for the destination square back to front
+		int i=PGN.indexOf('=');//character that signals promotions
+		if(i>0){//detect promotions, handle them later
+			promotedInitial=charUppercase(PGN.charAt(i+1));//get the abbreviation of what the pawn becomes
+			i=i-1;//hunt for destinations behind the = sign
+		}else{
+			i=PGN.length()-1;//Otherwise, hunt for the destination square back to front
+		}
 		for(; i>0; --i){//look for the number, stop if there are not enough chars left to get a valid square
 			if(PGN.charAt(i)>='1' && PGN.charAt(i)<='8'){//only care about numbers 1-8
 				--i;//move back to get the letter
 				dest=Coord.PGNToIndex(PGN.substring(i,i+2));
 				break;//break the loop, we found what we are looking for
 			}
-		}//todo detect pawn promotions
+		}
 		if(dest==Coord.ERROR_INDEX) return Move.blankMove;//if we did not find a destination, early escape
 		//otherwise, we need to go and hunt for things like differentiation
 		for(; i>=0; --i){//Continue from where we found the coordinate, hunt for differentiations, piece initials, and captures
@@ -63,10 +69,16 @@ public class PGNConverter{
 		//get legal moves and search for the right one
 		moves=Engine.getLegalMoves(board,PieceCode.encodeChar(pieceInitial,player));
 		//search the moves based on differentiation method
-		return switch(diffMethod){
+		candidate=switch(diffMethod){
 			case DiffX -> searchMovesDiffX(moves,dest,startX,capture);//search by differentiation on the X coordinate
 			case DiffY -> searchMovesDiffY(moves,dest,startY,capture);//search by differentiation on the Y coordinate
 			default -> searchMovesNoDiff(moves,dest,capture);//if no differentiation, search by destination only
+		};
+		//handle promotions down here
+		return switch(promotedInitial){
+			case 'P','K' -> Move.blank();//invalid initials means invalid move
+			case 'Q','N','R','B' -> Move.makePromotion(candidate,PieceCode.encodeChar(promotedInitial,player));
+			default -> candidate;
 		};
 	}
 
@@ -245,9 +257,7 @@ public class PGNConverter{
 				++x;//move forward
 			}
 		}
-
 		team=(FEN_Parts[1].equalsIgnoreCase("w"));//get who plays next w=WHITE=true
-
 		fenBlk=FEN_Parts[2];//get castling rights, set all un moved squares
 		for(int i=0; i<fenBlk.length(); ++i){
 			switch(fenBlk.charAt(i)){
@@ -275,7 +285,6 @@ public class PGNConverter{
 			else EnPassant=Coord.shiftIndex(EnPassant,0,1);//if this player is BLACK, last player was WHITE, move in WHITE's direction
 			board.setEnPassant(Coord.indexToMask(EnPassant));
 		}
-
 		return board;
 	}
 }
