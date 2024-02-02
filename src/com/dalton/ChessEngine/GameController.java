@@ -91,10 +91,8 @@ public class GameController{
 			System.out.print(Types.getTeamString(playerColor)+" -> ");
 			command=scanner.nextLine();
 		}
-		if(!gameRunning()){//if game is over, print the history, do not run on a quit command
-			System.out.println("Game over");
-			printHistory();
-		}
+		System.out.println("Game over");
+		printHistory();
 	}
 
 	/**
@@ -156,7 +154,7 @@ public class GameController{
 		Coord start=new Coord(move), end=new Coord();
 		while(start.isSet()==UNSET || board.getSquare(start.getIndex())==Blank || PieceCode.decodeTeam(board.getSquare(start.getIndex()))!=playerColor){//loop until the player selects one of their pieces
 			if(move.equalsIgnoreCase("-show")) showBoard();
-			else System.out.println("invalid coordinate try again (type -abort to abort):");
+			else System.out.println("Invalid coordinate try again (type -abort to abort):");
 			System.out.print(Types.getTeamString(playerColor)+" -> ");
 			move=scanner.nextLine();
 			if(move.equalsIgnoreCase("-abort")) return false;
@@ -171,14 +169,37 @@ public class GameController{
 		move=scanner.nextLine();
 		end.setFromPGN(move);
 		while(end.isSet()==UNSET || Move.isBlank(Move.findMoveByDest(legalMoves,end.getIndex()))){//if the end isn't set or isn't in the piece's legal move destinations
-			if(move.equalsIgnoreCase("-show")) showBoard();
-			else System.out.println("invalid coordinate try again (type -abort to abort):");
+			if(move.equalsIgnoreCase("-show")) showBoard(start.getMask() | Move.destinationsToMask(legalMoves));
+			else System.out.println("Invalid coordinate try again (type -abort to abort):");
 			System.out.print(Types.getTeamString(playerColor)+"TO? "+start.getPGN()+"-> ");
 			move=scanner.nextLine();
 			if(move.equalsIgnoreCase("-abort")) return false;
 			end.setFromPGN(move);
 		}
-		makeMove(Move.findMoveByDest(legalMoves,end.getIndex()));//if here then we know the move is legal, go find it again... slow but this is CLI so not performance heavy
+		int filteredMove=Move.findMoveByDest(legalMoves,end.getIndex());
+		if(Move.isPawnPromotion(filteredMove)){//if there is a pawn promotion move, ask which piece to promote too.
+			char promotionCode=' ';
+			while(promotionCode==' '){//loop until the user gives a valid piece abbreviation
+				System.out.println("Promote pawn to? Q-Queen, K/N-Knight, B-Bishop, R-Rook?");
+				System.out.print("Piece? -> ");
+				move=scanner.nextLine();
+				if(move.equalsIgnoreCase("-abort")) return false;//abort and signal failure
+				promotionCode=switch(charUppercase(move.charAt(0))){
+					case 'Q' -> 'q';//queen
+					case 'K','N' -> 'n';//knight
+					case 'B' -> 'b';//bishop
+					case 'R','C' -> 'r';//rook aka castle
+					default -> {
+						System.out.println("Invalid Abbreviation");
+						yield ' ';
+					}
+				};
+			}
+			filteredMove=Move.encode(Move.getSpecialCode(filteredMove)|Move.pawnPromote,//add the pawn promotion flag
+					PieceCode.encodeChar(promotionCode,playerColor),//set the new piece
+					start.getIndex(),end.getIndex());//start and end index
+		}
+		makeMove(filteredMove);//if here then we know the move is legal, go find it again... slow but this is CLI so not performance heavy
 		return true;
 	}
 
@@ -194,7 +215,7 @@ public class GameController{
 		PGNMoves.push(pgn);//push newly made moves to their stacks
 		states.push(board.saveState());
 		board.makeMove(move);
-		System.out.println("PGN: "+pgn);
+		System.out.println("PGN: "+pgn+" "+Move.describe(move));
 	}
 
 	/** undo last move */

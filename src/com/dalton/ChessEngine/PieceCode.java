@@ -90,8 +90,8 @@ public abstract class PieceCode{
 		return switch(letter){
 			case 'p' -> PawnW;
 			case 'P' -> PawnB;
-			case 'r' -> RookW;
-			case 'R' -> RookB;
+			case 'r','c' -> RookW;//tolerate the letter C as equal to a rook
+			case 'R','C' -> RookB;
 			case 'n' -> KnightW;
 			case 'N' -> KnightB;
 			case 'b' -> BishopW;
@@ -114,7 +114,7 @@ public abstract class PieceCode{
 		int offset=(team==WHITE)? 0 : 1;//offset for later user
 		return switch(charUppercase(letter)){//force a known case
 			case 'P' -> PawnW+offset;//use the offset to encode the team as calculated earlier
-			case 'R' -> RookW+offset;
+			case 'R','C' -> RookW+offset;//tolerate C as a rook
 			case 'N' -> KnightW+offset;
 			case 'B' -> BishopW+offset;
 			case 'Q' -> QueenW+offset;
