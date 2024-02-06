@@ -139,7 +139,7 @@ public class King extends Piece{
 
 	/**
 	 * Checks for castling moves
-	 * @param board    The current state of the board
+	 * @param board The current state of the board
 	 * @return ArrayList of any found castling moves (if any)
 	 */
 	public ArrayList<Integer> getCastles(Board board){

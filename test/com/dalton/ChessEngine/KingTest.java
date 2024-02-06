@@ -39,6 +39,7 @@ public class KingTest{
 	private static final int minOnBoard=1, maxOnBoard=6;
 	/** Some arbitrary move that cannot contain a castle move */
 	private static final int bogusNonCastleMove=Move.blank();
+	Engine engine;
 	Board board, blankState;
 	ArrayList<Integer> gotMoves, filteredMoves;
 	ArrayList<Coord> expectedCoords, gotCoords;//these are the destination coord
@@ -59,6 +60,7 @@ public class KingTest{
 		filteredMoves=new ArrayList<>();
 		gotCoords=new ArrayList<>();
 		expectedCoords=new ArrayList<>();
+		engine=new Engine(1,2);
 	}
 
 	@After
@@ -72,6 +74,7 @@ public class KingTest{
 		gotCoords=null;
 		gotMoves=null;
 		filteredMoves=null;
+		engine=null;
 	}
 
 	/** Test the WHITE King where it can make all its possible moves */
@@ -128,10 +131,7 @@ public class KingTest{
 	private void testBasicMoveTemplate(Coord piecePos,boolean team){
 		king=new King(team);
 		board.setSquare(king.pieceCode,piecePos.getIndex());
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=new ArrayList<>();
-		king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+		gotMoves=Engine.getLegalMoves(board,king.pieceCode);
 
 		for(int gotMove: gotMoves){//check the piece code and special code
 			assertEquals("Move should be of Normal type (0)",Move.normalMove,Move.getSpecialCode(gotMove));
@@ -178,10 +178,7 @@ public class KingTest{
 		Coord piecePos=new Coord(4,4);
 		king=new King(team);
 		board.setSquare(king.pieceCode,piecePos.getIndex());
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=new ArrayList<>();
-		king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+		gotMoves=Engine.getLegalMoves(board,king.pieceCode);
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
@@ -195,7 +192,8 @@ public class KingTest{
 	public void testCastleQueenSideWHITE(){
 		setUpCastles(WHITE);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board);
+		gotMoves=Engine.getLegalMoves(board,king.pieceCode);
+		gotMoves=findMovesByCode(gotMoves,Move.qSideCastle);
 		for(int i=0; i<gotMoves.size(); ++i){//Search for a castling move
 			if(Move.getSpecialCode(gotMoves.get(i))==Move.qSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves
@@ -216,7 +214,8 @@ public class KingTest{
 	public void testCastleKingSideWHITE(){
 		setUpCastles(WHITE);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board);
+		gotMoves=Engine.getLegalMoves(board,king.pieceCode);
+		gotMoves=findMovesByCode(gotMoves,Move.kSideCastle);
 		for(int i=0; i<gotMoves.size(); ++i){//Search for a castling move
 			if(Move.getSpecialCode(gotMoves.get(i))==Move.kSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves
@@ -237,7 +236,8 @@ public class KingTest{
 	public void testCastleQueenSideBLACK(){
 		setUpCastles(BLACK);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board);
+		gotMoves=Engine.getLegalMoves(board,king.pieceCode);
+		gotMoves=findMovesByCode(gotMoves,Move.qSideCastle);
 		for(int gotMove: gotMoves){//Search for a castling move
 			if(Move.getSpecialCode(gotMove)==Move.qSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves
@@ -258,7 +258,8 @@ public class KingTest{
 	public void testCastleKingSideBLACK(){
 		setUpCastles(BLACK);//Set up the board and pieces for castling
 		int gotCastle=bogusNonCastleMove;//Store if we got a move here, set it to not a castle move for now
-		gotMoves=king.getCastles(board);
+		gotMoves=Engine.getLegalMoves(board,king.pieceCode);
+		gotMoves=findMovesByCode(gotMoves,Move.kSideCastle);
 		for(int gotMove: gotMoves){//Search for a castling move
 			if(Move.getSpecialCode(gotMove)==Move.kSideCastle){//search by type
 				if(gotCastle!=bogusNonCastleMove){//do not allow multiple of the same castling moves
@@ -326,10 +327,7 @@ public class KingTest{
 				enemyPos=piecePos.getShiftedCoord(offset[0],offset[1]);//array of offsets with X at 0 and Y at 1
 				if(enemyPos.isSet()==UNSET) continue;//only test if set so only valid coordinates are tested
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());//test captures
-				long enemies=board.alliedPieceMask(!team);
-				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());//search all pseudo legal moves
+				gotMoves=Engine.getLegalMoves(board,king.pieceCode);//search all pseudo legal moves
 				filteredMoves=findCaptures(gotMoves,board);//Filter out capture moves (should only be one of these because only one enemy)
 				assertEquals("Tile: "+piecePos+" There should be exactly one capture at:"+enemyPos,1,filteredMoves.size());//should capture the enemy
 				assertEquals("Tile: "+piecePos+" End position should match the enemy piece at:"+enemyPos,enemyPos.toString(),Coord.orderedPair(Move.getEndIndex(filteredMoves.get(0))));//match destinations
@@ -337,10 +335,7 @@ public class KingTest{
 				assertEquals("Tile: "+piecePos+" Piece code must match the King even on captures:"+enemyPos,king.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//set to friendly unit
-				enemies=board.alliedPieceMask(!team);
-				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());//search all pseudo legal moves
+				gotMoves=Engine.getLegalMoves(board,king.pieceCode);//search all pseudo legal moves
 				filteredMoves=findCaptures(gotMoves,board);//Filter out capture moves (Should not find any because we should not capture allied pieces)
 				assertEquals("Tile: "+piecePos+" Should not have any capture moves against friendlies at:"+enemyPos,0,filteredMoves.size());//DO NOT CAPTURE YOUR OWN TEAMMATES
 
@@ -350,10 +345,7 @@ public class KingTest{
 				enemyPos=piecePos.getShiftedCoord(offset[0],offset[1]);
 				if(enemyPos.isSet()==UNSET) continue;//only test if set
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());
-				long enemies=board.alliedPieceMask(!team);
-				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				king.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,king.pieceCode);
 				filteredMoves=findCaptures(gotMoves,board);//Filter out capture moves (enemy is outside of King's attack range so should not filter out any capture moves)
 				assertEquals("Tile: "+piecePos+" There should be no captures when the enemy is outside the range of the King at:"+enemyPos,0,filteredMoves.size());//Enemy is out of range, cannot capture
 

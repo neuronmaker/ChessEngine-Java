@@ -26,20 +26,19 @@ public class PawnTest{
 	Board board;
 	Engine engine;
 	ArrayList<Integer> gotMoves;
-	long enemies, blanks;
 
 	@Before
 	public void setup(){
 		board=new Board(Board.CLEAR);
 		gotMoves=new ArrayList<>();
-		enemies=0;
-		blanks=0;
+		engine=new Engine(1,2);
 	}
 
 	@After
 	public void tearDown(){
 		board=null;
 		gotMoves=null;
+		engine=null;
 	}
 
 	/** Test the basic forward moves of the WHITE pawn */
@@ -59,11 +58,11 @@ public class PawnTest{
 	 * @param team The team to test against
 	 */
 	public void testBasicMovesCommon(boolean team){
-		Pawn pawn;
+		Pawn piece;
 		Coord pawnPos;
 		int deltaY;
 		for(int x=0; x<BOARD_SIZE; ++x){//test a whole row
-			pawn=new Pawn(team);
+			piece=new Pawn(team);
 			if(team==WHITE){//I think the Ternary operator is easier to read in this case, but since you don't like it, here you go, it's not critical, they're both decent
 				pawnPos=new Coord(x,1);
 				deltaY=1;//if white, move up
@@ -72,13 +71,10 @@ public class PawnTest{
 				deltaY=-1;//if black, move down
 			}
 			//test first move, it can be one of two
-			board.setSquare(pawn.pieceCode,pawnPos.getIndex());
+			board.setSquare(piece.pieceCode,pawnPos.getIndex());
 			board.setAllNotMoved();
 
-			enemies=board.alliedPieceMask(!team);
-			blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=new ArrayList<>();
-			pawn.getMoves(gotMoves,enemies,blanks,pawnPos.getIndex());
+			gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 			boolean singleSquareMove=UNSET, doubleSquareMove=UNSET;//move up or down 1 and 2 tiles respectively
 			for(int move: gotMoves){
 				int endX=Coord.indexToX(Move.getEndIndex(move));
@@ -92,7 +88,7 @@ public class PawnTest{
 			board.setSquare(PieceCode.Blank,pawnPos.getIndex());
 			//test the subsequent move
 			pawnPos.addVector(0,deltaY);//simulate a move
-			board.setSquare(pawn.pieceCode,pawnPos.getIndex());
+			board.setSquare(piece.pieceCode,pawnPos.getIndex());
 			singleSquareMove=UNSET;
 			doubleSquareMove=UNSET;
 			for(int move: gotMoves){
@@ -111,7 +107,7 @@ public class PawnTest{
 	/** Test the Move structure for WHITE Pawns */
 	@Test
 	public void testMoveAnatomyWHITE(){
-		testMoveAnatomyCommon(BLACK);
+		testMoveAnatomyCommon(WHITE);
 	}
 
 	/** Test the Move structure for BLACK Pawns */
@@ -126,18 +122,15 @@ public class PawnTest{
 	 */
 	public void testMoveAnatomyCommon(boolean team){
 		Coord piecePos=new Coord(4,4);
-		Pawn pawn=new Pawn(team);
-		board.setSquare(pawn.pieceCode,piecePos.getIndex());
+		Pawn piece=new Pawn(team);
+		board.setSquare(piece.pieceCode,piecePos.getIndex());
 
-		enemies=board.alliedPieceMask(!team);
-		blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=new ArrayList<>();
-		pawn.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+		gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
 			assertEquals("Move should be of Normal type (0)",Move.normalMove,Move.getSpecialCode(move));
-			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(pawn.pieceCode),Move.getPieceName(move));
+			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(piece.pieceCode),Move.getPieceName(move));
 		}
 	}
 
@@ -159,21 +152,18 @@ public class PawnTest{
 	 */
 	public void testCaptureMovesCommon(boolean team){
 		Coord pawnPos=new Coord(), enemyPos;
-		Pawn pawn=new Pawn(team), friendly=new Pawn(team), enemy=new Pawn(!team);
+		Piece piece=new Pawn(team), friendly=new Queen(team), enemy=new Queen(!team);
 		final int deltaY=(team==WHITE) ? 1 : -1;//if WHITE move up (Y positive) otherwise go down if BLACK (Y negative)
 		final int posY=(team==WHITE) ? 1 : BOARD_SIZE-2;//if WHITE, start on row 1 like a game, if BLACK start 1 from top
 		ArrayList<Integer> captureMoves, standardMoves;
 		for(int i=0; i<BOARD_SIZE; ++i){
 			pawnPos.setCoord(i,posY);
-			board.setSquare(pawn.pieceCode,pawnPos.getIndex());
+			board.setSquare(piece.pieceCode,pawnPos.getIndex());
 			enemyPos=pawnPos.getShiftedCoord(-1,deltaY);//capture to the left
 			if(enemyPos.isSet()==SET){//if enemy is on the board
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());
 
-				enemies=board.alliedPieceMask(!team);
-				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				pawn.getMoves(gotMoves,enemies,blanks,pawnPos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertNotEquals("Tile "+pawnPos+" Left: Did not find a capture move",0,captureMoves.size());
@@ -183,10 +173,7 @@ public class PawnTest{
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece, same place as enemy
 
-				enemies=board.alliedPieceMask(!team);
-				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				pawn.getMoves(gotMoves,enemies,blanks,pawnPos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertEquals("Tile "+pawnPos+" Left: Should not try to capture a friendly piece",0,captureMoves.size());
@@ -198,10 +185,7 @@ public class PawnTest{
 			if(enemyPos.isSet()==SET){//if enemy is on the board
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());
 
-				enemies=board.alliedPieceMask(!team);
-				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				pawn.getMoves(gotMoves,enemies,blanks,pawnPos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertNotEquals("Tile "+pawnPos+" Right: Did not find a capture move",0,captureMoves.size());
@@ -211,10 +195,7 @@ public class PawnTest{
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece, same place as enemy
 
-				enemies=board.alliedPieceMask(!team);
-				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				pawn.getMoves(gotMoves,enemies,blanks,pawnPos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				captureMoves=findCaptures(gotMoves,board);
 				standardMoves=findJustMoves(gotMoves,board);
 				assertEquals("Tile "+pawnPos+" Right: Should not try to capture a friendly piece",0,captureMoves.size());
@@ -225,10 +206,7 @@ public class PawnTest{
 			enemyPos=pawnPos.getShiftedCoord(0,deltaY);//blocked
 			board.setSquare(enemy.pieceCode,enemyPos.getIndex());
 
-			enemies=board.alliedPieceMask(!team);
-			blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=new ArrayList<>();
-			pawn.getMoves(gotMoves,enemies,blanks,pawnPos.getIndex());
+			gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 			captureMoves=findCaptures(gotMoves,board);
 			standardMoves=findJustMoves(gotMoves,board);
 			assertEquals("Tile "+pawnPos+" Should not find a capture move when pawn blocked and nothing to its diagonal"
@@ -237,10 +215,7 @@ public class PawnTest{
 
 			board.setSquare(friendly.pieceCode,enemyPos.getIndex());//test friendly piece
 
-			enemies=board.alliedPieceMask(!team);
-			blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=new ArrayList<>();
-			pawn.getMoves(gotMoves,enemies,blanks,pawnPos.getIndex());
+			gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 			captureMoves=findCaptures(gotMoves,board);
 			standardMoves=findJustMoves(gotMoves,board);
 			assertEquals("Tile "+pawnPos+" Should not find a capture move when pawn blocked and nothing to its diagonal"

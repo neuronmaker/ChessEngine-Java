@@ -23,6 +23,7 @@ import static com.dalton.ChessEngine.UtilsForTests.*;
  */
 public class BishopTest{
 	Board board;
+	Engine engine;
 	ArrayList<Integer> gotMoves, filteredMoves;
 	ArrayList<Coord> gotCoords, expectedCoords;
 
@@ -33,6 +34,7 @@ public class BishopTest{
 		expectedCoords=new ArrayList<>();
 		gotMoves=new ArrayList<>();
 		filteredMoves=new ArrayList<>();
+		engine=new Engine(1,2);
 	}
 
 	@After
@@ -42,6 +44,7 @@ public class BishopTest{
 		expectedCoords=null;
 		gotMoves=null;
 		filteredMoves=null;
+		engine=null;
 	}
 
 	/** Test basic movement for WHITE Bishop, do not test capture */
@@ -61,17 +64,14 @@ public class BishopTest{
 	 * @param team WHITE or BLACK
 	 */
 	public void testBasicMoveCommon(boolean team){
-		Bishop bishop=new Bishop(team);
-		int pieceCode=bishop.pieceCode;
+		Bishop piece=new Bishop(team);
+		int pieceCode=piece.pieceCode;
 		Coord piecePos=new Coord();
 		for(int i=0; i<TOTAL_SQUARES; ++i){//test on all tiles
 			piecePos.setIndex(i);
 			board.setSquare(pieceCode,piecePos.getIndex());
 
-			long enemies=board.alliedPieceMask(!team);
-			long blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=new ArrayList<>();
-			bishop.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+			gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 			gotCoords=getDestCoords(gotMoves);
 
 			expectedCoords=new ArrayList<>();
@@ -105,7 +105,7 @@ public class BishopTest{
 
 	/** Test the Move structure BLACK */
 	@Test
-	public void testMoveAnatomyBlack(){
+	public void testMoveAnatomyBLACK(){
 		testMoveAnatomyCommon(BLACK);
 	}
 
@@ -115,16 +115,14 @@ public class BishopTest{
 	 */
 	public void testMoveAnatomyCommon(boolean team){
 		Coord piecePos=new Coord(4,4);
-		Bishop bishop=new Bishop(team);
-		board.setSquare(bishop.pieceCode,piecePos.getIndex());
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));
-		bishop.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+		Bishop piece=new Bishop(team);
+		board.setSquare(piece.pieceCode,piecePos.getIndex());
+		gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
 			assertEquals("Move should be of Normal type (0)",Move.normalMove,Move.getSpecialCode(move));
-			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(bishop.pieceCode),Move.getPieceName(move));
+			assertEquals("Piece code, converted to pretty printed name",PieceCode.decodePieceName(piece.pieceCode),Move.getPieceName(move));
 		}
 	}
 
@@ -145,13 +143,13 @@ public class BishopTest{
 	 * @param team WHITE or BLACK
 	 */
 	public void testCaptureCommon(boolean team){
-		Bishop bishop=new Bishop(team), friendly=new Bishop(team), enemy=new Bishop(!team);
+		Bishop piece=new Bishop(team), friendly=new Bishop(team), enemy=new Bishop(!team);
 		Coord piecePos=new Coord();
 		ArrayList<Coord> reachableSquares=new ArrayList<>();
 
 		for(int i=0; i<TOTAL_SQUARES; ++i){//testing all squares
 			piecePos.setIndex(i);
-			board.setSquare(bishop.pieceCode,piecePos.getIndex());
+			board.setSquare(piece.pieceCode,piecePos.getIndex());
 
 			reachableSquares.clear();//reset
 			reachableSquares.addAll(getLineOfCoords(piecePos,1,1));//4 diagonal directions
@@ -161,23 +159,17 @@ public class BishopTest{
 
 			for(Coord enemyPos: reachableSquares){//Check ALL squares reachable by the Rook, one by one
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());//Test capture
-				long enemies=board.alliedPieceMask(!team);
-				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				bishop.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not have exactly one capture",1,filteredMoves.size());
 				assertEquals("Tile: "+piecePos+": capture move should end on the enemy piece",
 						enemyPos.toString(),Coord.orderedPair(Move.getEndIndex(filteredMoves.get(0))));
 				assertTrue("Tile: "+piecePos+": capture move should flag capture",Move.isCapture(filteredMoves.get(0)));
 				assertEquals("Tile: "+piecePos+": capture move should have this Bishop's code set in its pieceCode field",
-						bishop.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
+						piece.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//Don't capture friendlies
-				enemies=board.alliedPieceMask(!team);
-				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				bishop.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not capture friendlies at "+enemyPos+" Size of list should be 0"
 						,0,filteredMoves.size());

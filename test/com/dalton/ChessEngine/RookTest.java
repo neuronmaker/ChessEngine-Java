@@ -24,6 +24,7 @@ import static com.dalton.ChessEngine.UtilsForTests.*;
  */
 public class RookTest{
 	Board board;
+	Engine engine;
 	ArrayList<Integer> gotMoves, filteredMoves;
 	ArrayList<Coord> gotCoords, expectedCoords;
 
@@ -34,6 +35,7 @@ public class RookTest{
 		filteredMoves=new ArrayList<>();
 		gotCoords=new ArrayList<>();
 		expectedCoords=new ArrayList<>();
+		engine=new Engine(1,2);
 	}
 
 	@After
@@ -43,6 +45,7 @@ public class RookTest{
 		expectedCoords=null;
 		gotMoves=null;
 		filteredMoves=null;
+		engine=null;
 	}
 
 	/** Test basic movement for WHITE Rook, do not test capture */
@@ -63,14 +66,11 @@ public class RookTest{
 	 */
 	public void testBasicMoveCommon(boolean team){
 		Coord piecePos;
-		Rook rook=new Rook(team);
+		Rook piece=new Rook(team);
 		for(int i=0; i<TOTAL_SQUARES; ++i){//test on all tiles
 			piecePos=new Coord(i);
-			board.setSquare(rook.pieceCode,piecePos.getIndex());
-			long enemies=board.alliedPieceMask(!team);
-			long blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=new ArrayList<>();
-			rook.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+			board.setSquare(piece.pieceCode,piecePos.getIndex());
+			gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 			gotCoords=getDestCoords(gotMoves);
 
 			expectedCoords=new ArrayList<>();
@@ -83,7 +83,7 @@ public class RookTest{
 			expectedCoords.sort(Comparator.comparingInt(Coord::getIndex));
 
 			for(int move: gotMoves){//test correct piece code
-				assertEquals("Piece code should match the Rook",rook.pieceCode,Move.getPieceCode(move));
+				assertEquals("Piece code should match the Rook",piece.pieceCode,Move.getPieceCode(move));
 			}
 
 			assertEquals("Square "+piecePos+": Must have same number of Coord in the got and expected list",
@@ -117,10 +117,7 @@ public class RookTest{
 		Rook piece=new Rook(team);
 		board.setSquare(piece.pieceCode,piecePos.getIndex());
 
-		long enemies=board.alliedPieceMask(!team);
-		long blanks=~(enemies | board.alliedPieceMask(team));
-		gotMoves=new ArrayList<>();
-		piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+		gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 		assertFalse("There should be encoded move integers here",gotMoves.isEmpty());
 		for(int move: gotMoves){
 			assertEquals("Moves should have starting position correct",piecePos.toString(),Coord.orderedPair(Move.getStartIndex(move)));
@@ -146,7 +143,7 @@ public class RookTest{
 	 * @param team WHITE or BLACK
 	 */
 	public void testCaptureCommon(boolean team){
-		Rook piece=new Rook(team), friendly=new Rook(team), enemy=new Rook(!team);
+		Piece piece=new Rook(team), friendly=new Queen(team), enemy=new Queen(!team);
 		Coord piecePos=new Coord();
 		ArrayList<Coord> reachableSquares=new ArrayList<>();
 		for(int i=0; i<TOTAL_SQUARES; ++i){//testing all squares
@@ -161,10 +158,7 @@ public class RookTest{
 
 			for(Coord enemyPos: reachableSquares){//Check ALL squares reachable by the Rook, one by one
 				board.setSquare(enemy.pieceCode,enemyPos.getIndex());//Test capture
-				long enemies=board.alliedPieceMask(!team);
-				long blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not have exactly one capture",1,filteredMoves.size());
 				assertEquals("Tile: "+piecePos+": capture move should end on the enemy piece",
@@ -174,10 +168,7 @@ public class RookTest{
 						piece.pieceCode,Move.getPieceCode(filteredMoves.get(0)));
 
 				board.setSquare(friendly.pieceCode,enemyPos.getIndex());//Don't capture friendlies
-				enemies=board.alliedPieceMask(!team);
-				blanks=~(enemies | board.alliedPieceMask(team));
-				gotMoves=new ArrayList<>();
-				piece.getMoves(gotMoves,enemies,blanks,piecePos.getIndex());
+				gotMoves=Engine.getLegalMoves(board,piece.pieceCode);
 				filteredMoves=findCaptures(gotMoves,board);
 				assertEquals("Tile: "+piecePos+": Should not capture friendlies at "+enemyPos+" Size of list should be 0"
 						,0,filteredMoves.size());
