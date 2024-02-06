@@ -148,13 +148,14 @@ public class Pawn extends Piece{
 		return promotions;
 	}
 	/**
-	 * Get the mask of squares this piece can attack
-	 * @param friends Mask of friendly units to mask out
+	 * Get the mask of squares this Pawn can attack
+	 * @param enemies Mask of enemies to capture
+	 * @param blanks  Mask of blank squares
 	 * @param pos     The integer position index
 	 * @return a 64 bit integer bit mask
 	 */
 	@Override
-	public long attackMask(final long friends,final int pos){
+	public long attackMask(final long enemies,final long blanks,final int pos){
 		long mask;
 		switch(Coord.indexToX(pos)){
 			case 0://left side
@@ -166,6 +167,6 @@ public class Pawn extends Piece{
 			default:
 				mask=0b00000101L << (pos-1 + dy*BOARD_SIZE);//mask is 1 space too far over because it won't fit otherwise
 		}
-		return mask&~friends;
+		return mask&(enemies|blanks);
 	}
 }

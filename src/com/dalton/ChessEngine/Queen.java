@@ -67,12 +67,15 @@ public class Queen extends Piece{
 
 	/**
 	 * Get the mask of squares the Queen can attack
-	 * @param friends Mask of friendly units to mask out
+	 * @param enemies Mask of enemies to capture
+	 * @param blanks  Mask of blank squares
 	 * @param pos     The integer position index
 	 * @return a 64 bit integer bit mask
 	 */
 	@Override
-	public long attackMask(long friends,int pos){
-		return 0;
+	public long attackMask(final long enemies,final long blanks,final int pos){
+		long mask=PieceCode.pieceObj(PieceCode.encodeChar('b',team)).attackMask(enemies,blanks,pos);//get Bishop mask
+		mask|=PieceCode.pieceObj(PieceCode.encodeChar('r',team)).attackMask(enemies,blanks,pos);//get Rook mask
+		return mask;
 	}
 }

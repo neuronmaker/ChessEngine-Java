@@ -371,15 +371,19 @@ public class PawnTest{
 	@Test
 	public void testAttackMask(){
 		Pawn pawn=new Pawn(WHITE);//test WHITE first
+		long blanks=0;
+		for(int i=0; i<TOTAL_SQUARES; ++i){
+			blanks|=1L<<i;
+		}
 		for(int i=0; Coord.indexToY(i)<XYMAX; ++i){
 			String expected=maskString(getCorrectAttackMask(i,WHITE));
-			String got=maskString(pawn.attackMask(0,i));
+			String got=maskString(pawn.attackMask(0,blanks,i));
 			assertEquals("At: "+Coord.orderedPair(i)+" "+Coord.indexToPGN(i),expected,got);
 		}
 		pawn=new Pawn(BLACK);//test BLACK next
 		for(int i=Coord.XYToIndex(0,1); i<TOTAL_SQUARES; ++i){//first square of second row
 			String expected=maskString(getCorrectAttackMask(i,BLACK));
-			String got=maskString(pawn.attackMask(0,i));
+			String got=maskString(pawn.attackMask(0,blanks,i));
 			assertEquals("At: "+Coord.orderedPair(i)+" "+Coord.indexToPGN(i),expected,got);
 		}
 	}

@@ -73,7 +73,7 @@ public abstract class Piece{
 	 * @param position The current position of this piece
 	 */
 	protected void diagLineCheck(ArrayList<Integer> moves,final long enemies,final long blanks,final int position){
-		final int x=Coord.indexToX(position), y=Coord.indexToY(position);
+		final int x=Coord.indexToX(position);
 		//North West
 		int i=position+NW;//iterate ahead of position
 		for(; Coord.indexToX(i)<BOARD_SIZE && Coord.indexToX(i)>x && i<TOTAL_SQUARES && (0!=(blanks & (1L << i))); i+=NW){//Move NW until off side edge (Coord.indexToX()) or off end (>TOTAL_SQUARES) or find a non-blank square
@@ -113,9 +113,10 @@ public abstract class Piece{
 
 	/**
 	 * Get the mask of squares this piece can attack
-	 * @param friends Mask of friendly units to mask out
+	 * @param enemies Mask of enemies to capture
+	 * @param blanks  Mask of blank squares
 	 * @param pos     The integer position index
 	 * @return a 64 bit integer bit mask
 	 */
-	public abstract long attackMask(final long friends,final int pos);
+	public abstract long attackMask(final long enemies,final long blanks,final int pos);
 }

@@ -54,7 +54,6 @@ public class Rook extends Piece{
 	 * @param moves    Reference to the Move list
 	 * @param enemies  Mask of enemy squares
 	 * @param blanks   Mask of blank squares
-	 * @return an ArrayList of integers which encode all the relevant move data for each move
 	 */
 	@Override
 	public void getMoves(ArrayList<Integer> moves,final long enemies,final long blanks,int position){
@@ -62,13 +61,47 @@ public class Rook extends Piece{
 	}
 
 	/**
-	 * Get the mask of squares this piece can attack
-	 * @param friends Mask of friendly units to mask out
+	 * Get the mask of squares the rook can attack
+	 * @param enemies Mask of enemies to capture
+	 * @param blanks  Mask of blank squares
 	 * @param pos     The integer position index
 	 * @return a 64 bit integer bit mask
 	 */
 	@Override
-	public long attackMask(long friends,int pos){
-		return 0;
+	public long attackMask(final long enemies,final long blanks,final int pos){
+		long mask=0;
+		int x=Coord.indexToX(pos), y=Coord.indexToY(pos);
+		//horizontal moves
+		int i=pos-1;//start behind the position,
+		for(; i>=Coord.XYToIndex(0,y) && (0!=(blanks & (1L << i))); --i){//and then move backwards until end of row or a non-blank square
+			mask|=1L<<i;
+		}
+		if(i>=Coord.XYToIndex(0,y) && (0!=(enemies & (1L << i)))){//if we found an enemy and the loop exited early
+			mask|=1L<<i;
+		}
+		i=pos+1;//now check from 1 in front of the position
+		for(; i<Coord.XYToIndex(BOARD_SIZE,y) && (0!=(blanks & (1L << i))); ++i){
+			mask|=1L<<i;
+		}
+		if(i<Coord.XYToIndex(BOARD_SIZE,y) && (0!=(enemies & (1L << i)))){
+			mask|=1L<<i;
+		}
+
+		//vertical moves
+		i=pos-BOARD_SIZE;
+		for(; i>=Coord.XYToIndex(x,0) && (0!=(blanks & (1L << i))); i-=BOARD_SIZE){
+			mask|=1L<<i;
+		}
+		if(i>=Coord.XYToIndex(x,0) && (0!=(enemies & (1L << i)))){
+			mask|=1L<<i;
+		}
+		i=pos+BOARD_SIZE;//now check from 1 above of the position
+		for(; i<Coord.XYToIndex(x,BOARD_SIZE) && (0!=(blanks & (1L << i))); i+=BOARD_SIZE){
+			mask|=1L<<i;
+		}
+		if(i<Coord.XYToIndex(x,BOARD_SIZE) && (0!=(enemies & (1L << i)))){
+			mask|=1L<<i;
+		}
+		return mask;
 	}
 }

@@ -136,13 +136,14 @@ public class Knight extends Piece{
 	}
 
 	/**
-	 * Get the mask of squares this Knight can attack
-	 * @param friends Mask of friendly units to mask out
+	 * Get the mask of squares the Knight can attack
+	 * @param enemies Mask of enemies to capture
+	 * @param blanks  Mask of blank squares
 	 * @param pos     The integer position index
 	 * @return a 64 bit integer bit mask
 	 */
 	@Override
-	public long attackMask(final long friends,final int pos){
-		return attackMask[pos]&~friends;//take attacking mask and remove all friendly pieces since we can't attack them
+	public long attackMask(final long enemies,final long blanks,final int pos){
+		return attackMask[pos]&(blanks|enemies);//take attacking mask and only attack pieces that are blank or enemies
 	}
 }
