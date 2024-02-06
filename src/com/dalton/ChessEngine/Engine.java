@@ -70,8 +70,8 @@ public class Engine{
 	 */
 	public int score(Board board){
 		//todo find a way to only do legal moves since it gets moves after checks or checkmates
-		if(isCheckmate(board,WHITE)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
-		if(isCheckmate(board,BLACK)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
+		//if(isCheckmate(board,WHITE)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
+		//if(isCheckmate(board,BLACK)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
 		long white=board.alliedPieceMask(WHITE),black=board.alliedPieceMask(BLACK),
 				blank=~(white|black);//add all occupied squares, take any that are not occupied and consider them blank
 		int score=0;
@@ -242,8 +242,8 @@ public class Engine{
 	 * @param board The current board
 	 * @param team  Who's turn? WHITE or BLACK
 	 * @param depth How many more levels to search
-	 * @param alpha Highest score found
-	 * @param beta  Lowest score found
+	 * @param alpha Best score for WHITE
+	 * @param beta  Best score for BLACK
 	 * @return integer score (higher score favors WHITE)
 	 */
 	public int minimax(Board board,boolean team,int depth,int alpha,int beta){
@@ -260,30 +260,22 @@ public class Engine{
 		Board movedBoard=boardArr[depth];//get reference to the pre-allocated board array
 		int bestScore;
 		if(team==WHITE){//WHITE is maximizing player
-			//if(isCheckmateFast(board,WHITE,moves)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
+			if(isCheckmateFast(board,WHITE,moves)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
 			bestScore=Integer.MIN_VALUE;//have not found a good move yet, pick the worst possible case for now
-			for(int i=0; i<moves.size() && bestScore>=alpha; ++i){
+			for(int i=0; i<moves.size() && alpha<beta; ++i){
 				movedBoard.loadState(board);
 				movedBoard.makeMove(moves.get(i));//load and move to avoid creating new boards all the time
 				bestScore=Math.max(bestScore,minimax(movedBoard,BLACK,depth-1,alpha,beta));
 				alpha=Math.max(alpha,bestScore);//store the maximal found score
-				if(bestScore>=beta){
-					//System.out.println("Alpha break Depth: "+depth+" "+ Move.describe(moves.get(i)));
-					break;//break on beta cut off (pruning)
-				}
 			}
 		}else{//BLACK is minimizing player
-			//if(isCheckmateFast(board,BLACK,moves)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
+			if(isCheckmateFast(board,BLACK,moves)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
 			bestScore=Integer.MAX_VALUE;//have not found a good move yet, go with worst option for now
-			for(int i=0; i<moves.size(); ++i){
+			for(int i=0; i<moves.size() && alpha<beta; ++i){
 				movedBoard.loadState(board);
 				movedBoard.makeMove(moves.get(i));//load and move to avoid creating new boards all the time
 				bestScore=Math.min(bestScore,minimax(movedBoard,WHITE,depth-1,alpha,beta));
 				beta=Math.min(beta,bestScore);//best minimal found score
-				if(bestScore<=alpha){
-					//System.out.println("Beta break Depth: "+depth+" "+ Move.describe(moves.get(i)));
-					break;//break on alpha cut off (pruning)
-				}
 			}
 		}
 		return bestScore;
