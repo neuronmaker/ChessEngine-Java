@@ -12,7 +12,9 @@ import static com.dalton.ChessEngine.Types.*;
 public class Engine{
 	private int maxDepth;
 	private int maxThreads=1;
+	/** Pre-Allocated boards for re-use in MiniMax, Arranged[depth] */
 	private Board[] boardArr;
+	/** Pre-Allocated board for re-use in checkmate checking*/
 	private Board checkMateBoard;
 
 	/**
@@ -23,7 +25,7 @@ public class Engine{
 	 */
 	public static boolean inCheck(Board board,boolean team){
 		int kingpos=Coord.maskToIndex(board.searchPiece((team==WHITE)? PieceCode.KingW : PieceCode.KingB));
-		ArrayList<Integer> moves=getLegalMoves(board,!team);//get moves that the other guy can make
+		ArrayList<Integer> moves=getMoves(board,!team);//get moves that the other guy can make
 		for(int i=0; i<moves.size(); ++i){//search for a move which would capture the king
 			if(Move.isCapture(moves.get(i)) && Move.getEndIndex(moves.get(i))==kingpos)
 				return true;//if they can capture, then we are in check
@@ -39,7 +41,7 @@ public class Engine{
 	 */
 	public boolean isCheckmate(Board board,boolean team){
 		if(!inCheck(board,team)) return false;//not in check means not possible to check mate
-		ArrayList<Integer> moves=getLegalMoves(board,team);//get moves that this team can make
+		ArrayList<Integer> moves=getMoves(board,team);//get moves that this team can make
 		for(int i=0; i<moves.size(); ++i){//search for a move which would get out of check
 			checkMateBoard.loadState(board);
 			checkMateBoard.makeMove(moves.get(i));//simulate the moves
@@ -47,13 +49,28 @@ public class Engine{
 		}
 		return true;//if no saving moves found, then it's checkmate
 	}
+
+	/**
+	 * Checks if the player is in check (requires externally computed moves)
+	 * @param moves   The list of other team's moves to check against
+	 * @param kingPos Where is this team's King?
+	 * @return True if selected player is in check, False if not
+	 */
+	public static boolean inCheckFast(ArrayList<Integer> moves,final int kingPos){
+		int i=0;
+		while(i<moves.size() && Move.getEndIndex(moves.get(i))!=kingPos){//search for a move which would capture the king
+			++i;
+		}
+		return i>=moves.size();//if we ended early, it means that there was a capture on the king
+	}
 	/**
 	 * Checks if the player is checkmated (no way to save King from capture), requires a pre-computed moves list
 	 * @param board Current board state
 	 * @param team  WHITE or BLACK
+	 * @param moves Pre-calculated list of moves
 	 * @return True if checkmated, False if not
 	 */
-	public boolean isCheckmateFast(Board board,boolean team,ArrayList<Integer> moves){
+	private boolean isCheckmateFast(Board board,final boolean team,ArrayList<Integer> moves){
 		if(!inCheck(board,team)) return false;//not in check means not possible to check mate
 		for(int i=0; i<moves.size(); ++i){//search for a move which would get out of check
 			checkMateBoard.loadState(board);
@@ -69,7 +86,6 @@ public class Engine{
 	 * @return A score from WHITE player's perspective
 	 */
 	public int score(Board board){
-		//todo find a way to only do legal moves since it gets moves after checks or checkmates
 		//if(isCheckmate(board,WHITE)) return Integer.MIN_VALUE;//if WHITE is checkmated, Min score favors BLACK
 		//if(isCheckmate(board,BLACK)) return Integer.MAX_VALUE;//if BLACK is checkmated, Max score favors WHITE
 		long white=board.alliedPieceMask(WHITE),black=board.alliedPieceMask(BLACK),
@@ -99,7 +115,7 @@ public class Engine{
 	 * @param team  WHITE or BLACK
 	 * @return ArrayList of moves encoded into integers
 	 */
-	public static ArrayList<Integer> getLegalMoves(Board board,boolean team){
+	public static ArrayList<Integer> getMoves(Board board,boolean team){
 		ArrayList<Integer> moves=new ArrayList<>();//Pass this single list around by reference, fewer memory allocations
 		int i=(team==WHITE)? PieceCode.WHITE_OFFSET : PieceCode.BLACK_OFFSET,pawn,king,index;
 		long positions,enemies=board.alliedPieceMask(!team),
@@ -129,20 +145,19 @@ public class Engine{
 			index=Coord.maskToNextIndex(positions,index);
 		}
 		//Castling
-		moves.addAll(((King) PieceCode.pieceObj(king)).getCastles(board));//get castling moves
-
+		((King) PieceCode.pieceObj(king)).getCastles(board,moves);//get castling moves
 		return moves;
 	}
 
 	/**
-	 * Generates all moves that are legal for a given piece type (all pawns, rooks, or knights, etc.)
-	 * Only checks the pieces that belong to the same team as the indicated Piece Code
+	 * Generates all moves that a given piece type (all pawns, rooks, or knights, etc.) can make
+	 * Does not filter out moves leading to a check
 	 * @param board     The current board state
 	 * @param pieceCode Which piece (and who's team) to check
 	 * @return a list of moves encoded as integers
 	 * @see PieceCode
 	 */
-	public static ArrayList<Integer> getLegalMoves(Board board,int pieceCode){
+	public static ArrayList<Integer> getMoves(Board board,int pieceCode){
 		ArrayList<Integer> moves=new ArrayList<>();//Pass this single list around by reference, fewer memory allocations
 		long positions=board.searchPiece(pieceCode);//for each piece code
 		long enemies=board.alliedPieceMask(!PieceCode.decodeTeam(pieceCode)),
@@ -153,7 +168,7 @@ public class Engine{
 			case PieceCode.KingW://Kings can castle
 			case PieceCode.KingB://There is only one King on the board
 				PieceCode.pieceObj(pieceCode).getMoves(moves,enemies,blanks,index);//get all standard moves
-				moves.addAll(((King) PieceCode.pieceObj(pieceCode)).getCastles(board));//get castling moves
+				((King) PieceCode.pieceObj(pieceCode)).getCastles(board,moves);//get castling moves
 				return moves;//Only one king so we are done
 			case PieceCode.PawnW://select the EnPassant filter for either pawn
 				filteredPawns=Pawn.WHITE_EnPassant_mask&positions;//filter out only pawns that can EnPassant
@@ -178,6 +193,26 @@ public class Engine{
 	}
 
 	/**
+	 * Generates only moves that are legal for a given piece type (all pawns, rooks, or knights, etc.)
+	 * Only checks the pieces that belong to the same team as the indicated Piece Code
+	 * @param board     The current board state
+	 * @param pieceCode Which piece (and who's team) to check
+	 * @return a list of moves encoded as integers
+	 * @see PieceCode
+	 */
+	public static ArrayList<Integer> getLegalMoves(Board board,int pieceCode){
+		ArrayList<Integer> moves=getMoves(board,pieceCode),legal=new ArrayList<>(moves.size());
+		Board movedBoard=new Board(Board.CLEAR);
+		for(int i=0; i<moves.size(); ++i){
+			movedBoard.loadState(board);
+			movedBoard.makeMove(moves.get(i));//simulate the move
+			if(!inCheck(movedBoard,PieceCode.decodeTeam(pieceCode)))//if not in check
+				legal.add(moves.get(i));//add move
+		}
+		return legal;
+	}
+	private int nodes=0;
+	/**
 	 * Generates all possible moves, split them up between all threads.
 	 * Then returns the move with the best score after scoring to the desired depth.
 	 * @param board  Current state of the board for the search
@@ -194,8 +229,9 @@ public class Engine{
 		Try to store all enemy moves a level or 2 deep, then recall the score from the move the enemy makes so save on computing time
 		consider pre-allocating the boards to save on allocation time
 		 */
+		nodes=0;
 		depth=Math.min(depth,maxDepth);
-		ArrayList<Integer> legalMoves=getLegalMoves(board,player);
+		ArrayList<Integer> legalMoves=getMoves(board,player);
 		ArrayList<Integer> scores=new ArrayList<>();
 		int bestMove, bestScore;
 		Board movedBoard=new Board(Board.CLEAR);
@@ -222,6 +258,7 @@ public class Engine{
 				}
 			}
 		}
+		System.out.println("Nodes: "+nodes);
 		return bestMove;
 	}
 
@@ -250,12 +287,12 @@ public class Engine{
 		/*
 		Get all moves after this move, store them
 		Score them
-		alpha beta prune
 		sort them by score
 		search best move first (recall from storage, don't recompute)
 		 */
+		++nodes;
 		if(depth<=0) return score(board);//if at end of search, then return the score here
-		ArrayList<Integer> moves=getLegalMoves(board,team);//call the move generator
+		ArrayList<Integer> moves=getMoves(board,team);//call the move generator
 		if(moves.isEmpty()) return score(board);//if no moves present, return this board position score
 		Board movedBoard=boardArr[depth];//get reference to the pre-allocated board array
 		int bestScore;

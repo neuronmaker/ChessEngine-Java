@@ -401,6 +401,10 @@ public class GameController{
 		showBoard();
 	}
 
+	public void flipPlayer(){
+		playerColor=!playerColor;
+	}
+
 	/** Initializes the game */
 	public GameController(){
 		states=new Stack<>();

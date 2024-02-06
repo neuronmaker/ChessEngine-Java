@@ -140,10 +140,9 @@ public class King extends Piece{
 	/**
 	 * Checks for castling moves
 	 * @param board The current state of the board
-	 * @return ArrayList of any found castling moves (if any)
+	 * @param moves The list of moves to add any castling moves onto
 	 */
-	public ArrayList<Integer> getCastles(Board board){
-		ArrayList<Integer> moves=new ArrayList<>();
+	public void getCastles(Board board,ArrayList<Integer> moves){
 		if(board.hasNotMoved(startingIndex) && !isInCheck(board,startingIndex)){//no castling if moved or in check
 			//Checking the queenside
 			int rookPos=Coord.XYToIndex(0,Coord.indexToY(startingIndex));//get the rook for this side
@@ -158,7 +157,6 @@ public class King extends Piece{
 				moves.add(Move.encodeCastle(Move.kSideCastle,team));//We can castle King side
 			}
 		}
-		return moves;
 	}
 
 	/**
