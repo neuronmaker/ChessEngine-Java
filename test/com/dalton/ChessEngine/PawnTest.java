@@ -317,33 +317,28 @@ public class PawnTest{
 		int lastRow=(team==WHITE)? XYMAX : 0;//if WHITE then go to top of board, if BLACK then go to bottom
 		int direction=(team==WHITE)? 1 : -1;//if WHITE then go up, if BLACK then go down
 		int pieceCodeOffset=(team==WHITE)? 0 : 1;//if WHITE then we don't add 1 to the codes, if BLACK we do because BLACK is on every other PieceCode
-		int[] foundPromotions=new int[PieceCode.KingW];
-		Board beforeMove;
+		int[] foundPromotions=new int[PieceCode.PIECE_TYPES];
 		Coord before, after;
 		Pawn pawn=new Pawn(team);
-
-		for(int i=0; i<BOARD_SIZE; ++i){//set up the board
-			board.setSquare(pawn.pieceCode,i,(lastRow-direction));//place a line of pawns at the final row
-		}
-		beforeMove=new Board(board);//save the board state
 
 		for(int x=0; x<BOARD_SIZE; ++x){//loop over each square in the row
 			Arrays.fill(foundPromotions,0);//0 out the array
 			after=new Coord(x,lastRow);//the last row in this column
 			before=after.getShiftedCoord(0,-direction);//the row behind the last row, note the negative sign
 			String errMsgData="Tile "+before+"->"+after+" ";
-			board=new Board(beforeMove);
+			board=new Board(Board.CLEAR);
+			board.setSquare(pawn.pieceCode,x,(lastRow-direction));
 
-			long enemies=board.alliedPieceMask(!team);
-			long blanks=~(enemies | board.alliedPieceMask(team));
-			gotMoves=new ArrayList<>();
-			pawn.getMoves(gotMoves,enemies,blanks,before.getIndex());
+			gotMoves=Engine.getLegalMoves(board,pawn.pieceCode);
 			for(int move: gotMoves){
-				++foundPromotions[Move.getPieceCode(move)];//count each instance of each piece code
+				if(Move.isPawnPromotion(move))//for each promotion
+					++foundPromotions[Move.getPieceCode(move)];//count each instance of each piece code
 			}
 
 			assertEquals(errMsgData+"Should not find a promotion to BLACK pawns",0,foundPromotions[PieceCode.PawnB]);//no pawns
 			assertEquals(errMsgData+"Should not find a promotion to WHITE pawns",0,foundPromotions[PieceCode.PawnW]);
+			assertEquals(errMsgData+"Should not find a promotion to BLACK kings",0,foundPromotions[PieceCode.KingB]);//no Kings
+			assertEquals(errMsgData+"Should not find a promotion to WHITE kings",0,foundPromotions[PieceCode.KingW]);
 			for(int i=pieceCodeOffset+PieceCode.RookW; i<PieceCode.KingW; i+=2){//search the other types, start at the Rooks because I put them just above the pawns, don't promote to a King
 				assertEquals(errMsgData+"Should find 1 promotion move to "+PieceCode.decodePieceName(i),1,foundPromotions[i]);//look up each code count in the integer array
 			}

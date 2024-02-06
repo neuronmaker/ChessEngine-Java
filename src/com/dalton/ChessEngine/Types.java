@@ -69,6 +69,15 @@ public abstract class Types{// class can't be instantiated, but it has static he
 	}
 
 	/**
+	 * Forces a char to lowercase using bitwise masking
+	 * @param c To uppercase
+	 * @return lowercase version of c
+	 */
+	public static char charLowercase(char c){
+		return (char) (c | 0b0000000000100000);
+	}
+
+	/**
 	 * Unoptimized method to convert a long to its binary string
 	 * @param mask The long to check
 	 * @return A string on 0's and 1's
