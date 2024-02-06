@@ -154,7 +154,18 @@ public class Pawn extends Piece{
 	 * @return a 64 bit integer bit mask
 	 */
 	@Override
-	public long attackMask(long friends,int pos){
-		return 0;
+	public long attackMask(final long friends,final int pos){
+		long mask;
+		switch(Coord.indexToX(pos)){
+			case 0://left side
+				mask=0b00000010L << ((Coord.indexToY(pos)+dy) * BOARD_SIZE);
+				break;
+			case 7://right side
+				mask=0b01000000L << ((Coord.indexToY(pos)+dy) * BOARD_SIZE);
+				break;
+			default:
+				mask=0b00000101L << (pos-1 + dy*BOARD_SIZE);//mask is 1 space too far over because it won't fit otherwise
+		}
+		return mask&~friends;
 	}
 }

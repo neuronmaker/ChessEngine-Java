@@ -142,7 +142,7 @@ public class Knight extends Piece{
 	 * @return a 64 bit integer bit mask
 	 */
 	@Override
-	public long attackMask(long friends,int pos){
+	public long attackMask(final long friends,final int pos){
 		return attackMask[pos]&~friends;//take attacking mask and remove all friendly pieces since we can't attack them
 	}
 }

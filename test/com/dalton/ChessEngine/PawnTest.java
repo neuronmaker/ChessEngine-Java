@@ -342,7 +342,7 @@ public class PawnTest{
 		int lastRow=(team==WHITE)? XYMAX : 0;//if WHITE then go to top of board, if BLACK then go to bottom
 		int direction=(team==WHITE)? 1 : -1;//if WHITE then go up, if BLACK then go down
 		int pieceCodeOffset=(team==WHITE)? 0 : 1;//if WHITE then we don't add 1 to the codes, if BLACK we do because BLACK is on every other PieceCode
-		int[] foundPromotions=new int[PieceCode.PIECE_TYPES];
+		int[] foundPromotions=new int[PieceCode.KingW];
 		Board beforeMove;
 		Coord before, after;
 		Pawn pawn=new Pawn(team);
@@ -369,9 +369,48 @@ public class PawnTest{
 
 			assertEquals(errMsgData+"Should not find a promotion to BLACK pawns",0,foundPromotions[PieceCode.PawnB]);//no pawns
 			assertEquals(errMsgData+"Should not find a promotion to WHITE pawns",0,foundPromotions[PieceCode.PawnW]);
-			for(int i=pieceCodeOffset+PieceCode.RookW; i<PieceCode.PIECE_TYPES; i+=2){//search the other types, start at the Rooks because I put them just above the pawns
+			for(int i=pieceCodeOffset+PieceCode.RookW; i<PieceCode.KingW; i+=2){//search the other types, start at the Rooks because I put them just above the pawns, don't promote to a King
 				assertEquals(errMsgData+"Should find 1 promotion move to "+PieceCode.decodePieceName(i),1,foundPromotions[i]);//look up each code count in the integer array
 			}
+		}
+	}
+
+	/**
+	 * Get the correct attacking mask for a team
+	 * @param pos  Where the Pawn is
+	 * @param team WHITE or BLACK
+	 * @return The Correct attack mask
+	 */
+	public long getCorrectAttackMask(final int pos, boolean team){
+		long mask;
+		int dy=(team==WHITE)?1:-1;
+		if((Coord.indexToY(pos)>=XYMAX && team==WHITE) || (Coord.indexToY(pos)<=XYMIN && team==BLACK)){
+			return 0;//do not generate the mask for squares the Pawn can't reach because it would be promoted
+		}
+		mask=switch(Coord.indexToX(pos)){
+			case XYMIN ->//left side
+					0b00000010L << ((Coord.indexToY(pos)+dy)*BOARD_SIZE);
+			case XYMAX ->//right side
+					0b01000000L << ((Coord.indexToY(pos)+dy)*BOARD_SIZE);
+			default ->
+					0b00000101L << (pos-1+dy*BOARD_SIZE);//mask is 1 space too far over because it won't fit otherwise
+		};
+		return mask;
+	}
+	/** Test attacking masks for both teams */
+	@Test
+	public void testAttackMask(){
+		Pawn pawn=new Pawn(WHITE);//test WHITE first
+		for(int i=0; Coord.indexToY(i)<XYMAX; ++i){
+			String expected=maskString(getCorrectAttackMask(i,WHITE));
+			String got=maskString(pawn.attackMask(0,i));
+			assertEquals("At: "+Coord.orderedPair(i)+" "+Coord.indexToPGN(i),expected,got);
+		}
+		pawn=new Pawn(BLACK);//test BLACK next
+		for(int i=Coord.XYToIndex(0,1); i<TOTAL_SQUARES; ++i){//first square of second row
+			String expected=maskString(getCorrectAttackMask(i,BLACK));
+			String got=maskString(pawn.attackMask(0,i));
+			assertEquals("At: "+Coord.orderedPair(i)+" "+Coord.indexToPGN(i),expected,got);
 		}
 	}
 }

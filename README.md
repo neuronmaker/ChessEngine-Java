@@ -47,31 +47,18 @@ PGN handler class jobs:
 
 ## Features
 
-- To Do:
-  - Go over the Git log of the old group project
-    - Remove and parts that are not entirely my creation
-    - Replace said parts with faster and all around better versions
-  - My own PGN handling class
-- In the works
-  - Engine
-    - AI
-      - Minimax algorithm
-      - Configurable difficulty (search depth)
-      - Threading
-    - Human player
-- Done
-  - Working CLI
-  - Board
-    - Convert to ASCII art
-    - Add/delete pieces
-    - Take moves
-    - Mask search
-    - Piece search, gets the mask
-    - Team search, like a piece search but for all pieces on that team
-  - Pieces
-      - Move generation
-      - Look up based on Piece codes
-  - Write README.md file
+- Working CLI
+- PGN handler class
+- Board
+  - Convert to ASCII art
+  - Add/delete pieces
+  - Take moves
+  - Mask search
+  - Piece search, gets the mask
+  - Team search, like a piece search but for all pieces on that team
+- Pieces
+    - Move generation
+    - Look up based on Piece codes
 
 ## Idiosyncrasies
 
@@ -81,5 +68,5 @@ PGN handler class jobs:
 - Board simplicity
   - Board just stores pieces, if they've moved, and EnPassant vulnerability
   - Board does not check move legality and does not record who is playing
-  - All of this is for teh game application and the Engine to worry about, the Board is *just* a data type
+  - All of this is for the game application and the Engine to worry about, the Board is *just* a data type
 - 
