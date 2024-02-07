@@ -412,10 +412,8 @@ public class Coord{
 	 * @param lastIndex Where the last was found, search from here
 	 * @return integer position of next 1 bit in the mask
 	 */
-	public static int maskToNextIndex(long mask,final int lastIndex){
-		final int offset=4;
-		for(int i=lastIndex+1; i<TOTAL_SQUARES; i+=offset){//this is going to be used in high impact areas, SPEED MATTERS
-			//Andrew, you may not like this, but it's at LEAST 2x faster than ifs, not including pipeline flushes
+	public static int maskToNextIndex(final long mask,final int lastIndex){
+		for(int i=lastIndex+1; i<TOTAL_SQUARES; i+=4){//this is going to be used in high impact areas, SPEED MATTERS
 			switch((int) ((mask >>> i) & 0b1111)){//going to try shifting by 4 and masking out just those 4 bits
 				case 0b0001://checking 4 bits at a time this way
 				case 0b0011:
@@ -450,6 +448,42 @@ public class Coord{
 		return 1L << index;
 	}
 
+	/**
+	 * Gets the number of 1's in the mask
+	 * @param mask The mask to search
+	 * @return count of 1's in the mask
+	 */
+	public static int maskCount(final long mask){
+		int count=0;
+		for(int i=0; i<TOTAL_SQUARES; i+=4){//this is going to be used in high impact areas, SPEED MATTERS
+			switch((int) ((mask >>> i) & 0b1111)){//going to try shifting by 4 and masking out just those 4 bits
+				case 0b0001://all combinations of 1 count
+				case 0b0010:
+				case 0b0100:
+				case 0b1000:
+					++count;
+					break;
+				case 0b0011://all 2 bit combos
+				case 0b0101:
+				case 0b1001:
+				case 0b1010:
+				case 0b0110:
+				case 0b1100:
+					count+=2;
+					break;
+				case 0b0111:
+				case 0b1011:
+				case 0b1101:
+				case 0b1110:
+					count+=3;
+					break;
+				case 0b1111:
+					count+=4;
+					break;
+			}
+		}
+		return count;
+	}
 	/**
 	 * Converts an index to an ordered pair
 	 * @param index the index
