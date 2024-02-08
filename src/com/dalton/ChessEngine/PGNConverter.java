@@ -34,8 +34,12 @@ public class PGNConverter{
 		int diffMethod=noDiff,candidate;//we assume no differentiation by default
 		switch(PGN){
 			case "0-0":
+			case "o-o":
+			case "O-O":
 				return Move.encodeCastle(Move.kSideCastle,player);
 			case "0-0-0":
+			case "o-o-o":
+			case "O-O-O":
 				return Move.encodeCastle(Move.qSideCastle,player);
 		}
 		int i=PGN.indexOf('=');//character that signals promotions
@@ -145,7 +149,7 @@ public class PGNConverter{
 	 */
 	public static String getPGN(Board board,int move){
 		String pgn=Coord.indexToPGN(Move.getEndIndex(move));//set the destination square
-		if(Move.isCapture(move)) pgn="x"+pgn;//if a capture, then prepend an x before the coordinate
+		if(board.getSquare(Move.getEndIndex(move))!=PieceCode.Blank || Move.isCapture(move)) pgn="x"+pgn;//if a capture, then prepend an x before the coordinate
 		int code=Move.getPieceCode(move);
 		ArrayList<Integer> candidates=Engine.getLegalMoves(board,code);//find all the moves for this piece type
 		for(int i=0; i<candidates.size(); ++i){//search for ambiguous moves, then differentiate

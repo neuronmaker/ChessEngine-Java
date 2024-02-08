@@ -33,18 +33,17 @@ public class Bishop extends Piece{
 	}
 
 	/**
-	 * Calculates the Piece's value to the AI player
-	 * @param enemies  Mask of enemy squares
-	 * @param blanks   Mask of blank squares
-	 * @param position Where this Piece is located on the board
+	 * Calculates the Bishop's value to the AI player
+	 * @param enemies Mask of enemy squares
+	 * @param blanks  Mask of blank squares
+	 * @param pos     Where this Piece is located on the board
 	 * @return relative value to the AI
 	 */
 	@Override
-	public int pieceValue(final long enemies,final long blanks,final int position){
+	public int pieceValue(final long enemies,final long blanks,final int pos){
 		int score=300;
-		ArrayList<Integer> moves=new ArrayList<>();
-		getMoves(moves,enemies,blanks,position);
-		score+=moves.size()*10;
+		int moveCount=Coord.maskCount(attackMask(enemies,blanks,pos));
+		score+=moveCount*10;
 		return score;
 	}
 

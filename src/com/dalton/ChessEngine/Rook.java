@@ -34,18 +34,17 @@ public class Rook extends Piece{
 
 	/**
 	 * Calculates the relative value of this piece, used for AI
-	 * @param enemies  Mask of enemy squares
-	 * @param blanks   Mask of blank squares
-	 * @param position Where the Rook is on the board
+	 * @param enemies Mask of enemy squares
+	 * @param blanks  Mask of blank squares
+	 * @param pos     Where the Rook is on the board
 	 * @return Relative value for AI
 	 */
 	//TODO finish this
 	@Override
-	public int pieceValue(final long enemies,final long blanks,final int position){
+	public int pieceValue(final long enemies,final long blanks,final int pos){
 		int score=500;
-		ArrayList<Integer> moves=new ArrayList<>();
-		getMoves(moves,enemies,blanks,position);
-		score+=moves.size()*10;
+		int moveCount=Coord.maskCount(attackMask(enemies,blanks,pos));
+		score+=moveCount*10;
 		return score;
 	}
 
@@ -54,6 +53,7 @@ public class Rook extends Piece{
 	 * @param moves    Reference to the Move list
 	 * @param enemies  Mask of enemy squares
 	 * @param blanks   Mask of blank squares
+	 * @param position The position index to check from
 	 */
 	@Override
 	public void getMoves(ArrayList<Integer> moves,final long enemies,final long blanks,int position){

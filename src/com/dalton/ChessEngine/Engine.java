@@ -10,11 +10,12 @@ import static com.dalton.ChessEngine.Types.*;
  * @version 0.4
  */
 public class Engine{
+	private MoveGenerator moveGen;
 	private int maxDepth;
 	private int maxThreads=1;
 	/** Pre-Allocated boards for re-use in MiniMax, Arranged[depth] */
 	private Board[] boardArr;
-	/** Pre-Allocated board for re-use in checkmate checking*/
+	/** Pre-Allocated board for re-use in checkmate checking */
 	private Board checkMateBoard;
 
 	/**
@@ -24,13 +25,9 @@ public class Engine{
 	 * @return True if selected player is in check, False if not
 	 */
 	public static boolean inCheck(Board board,boolean team){
-		int kingpos=Coord.maskToIndex(board.searchPiece((team==WHITE)? PieceCode.KingW : PieceCode.KingB));
-		ArrayList<Integer> moves=getMoves(board,!team);//get moves that the other guy can make
-		for(int i=0; i<moves.size(); ++i){//search for a move which would capture the king
-			if(Move.isCapture(moves.get(i)) && Move.getEndIndex(moves.get(i))==kingpos)
-				return true;//if they can capture, then we are in check
-		}
-		return false;//if no moves that capture the king, then not in check
+		long kingPos=board.searchPiece((team==WHITE)? PieceCode.KingW : PieceCode.KingB);
+		long attackMask=MoveGenerator.getTeamAttackMask(board,!team);//get capture mask for other team
+		return 0!=(kingPos&attackMask);
 	}
 
 	/**
@@ -227,7 +224,6 @@ public class Engine{
 		Split them between the threads
 		Run minimax on the moves
 		Try to store all enemy moves a level or 2 deep, then recall the score from the move the enemy makes so save on computing time
-		consider pre-allocating the boards to save on allocation time
 		 */
 		nodes=0;
 		depth=Math.min(depth,maxDepth);
@@ -324,6 +320,7 @@ public class Engine{
 	 * @param depth   The default maximum depth
 	 */
 	public Engine(int threads,int depth){
+		moveGen=new MoveGenerator();
 		maxDepth=depth;
 		maxThreads=threads;
 		boardArr=new Board[maxDepth];
