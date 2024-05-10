@@ -1,8 +1,3 @@
-/*
-Project: Chess Engine
-File: Bishop.java
-Copyright (C) 2023 Dalton Herrewynen. All Rights Reserved
- */
 package com.dalton.ChessEngine;
 
 import java.util.ArrayList;

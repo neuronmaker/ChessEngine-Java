@@ -1,8 +1,3 @@
-/*
-Project: Chess Engine
-File: Rook.java
-Copyright (C) 2023 Dalton Herrewynen. All Rights Reserved
- */
 package com.dalton.ChessEngine;
 
 import java.util.ArrayList;

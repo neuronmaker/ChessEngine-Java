@@ -1,10 +1,3 @@
-/*
-File: MoveTest.java
-Copyright (C) 2023 Dalton Herrewynen. All Rights Reserved.
-License is hereby granted to The Kings University to store, compile, run, and display this file for grading and educational purposes.
-Ownership is to be held by the primary author.
-Licence is granted to the secondary members as noted in the Authors.md file for display, running, compiling, and modification for use in their future projects. Just keep my name on functions I wrote.
- */
 package com.dalton.ChessEngine;
 import org.junit.After;
 import org.junit.Before;
