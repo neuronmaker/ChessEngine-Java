@@ -116,7 +116,7 @@ public abstract class Piece{
 	 * @param enemies Mask of enemies to capture
 	 * @param blanks  Mask of blank squares
 	 * @param pos     The integer position index
-	 * @return a 64 bit integer bit mask
+	 * @return a 64-bit integer bit mask
 	 */
 	public abstract long attackMask(final long enemies,final long blanks,final int pos);
 }

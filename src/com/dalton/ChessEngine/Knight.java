@@ -7,7 +7,7 @@ import static com.dalton.ChessEngine.Types.*;
 /**
  * Class for the Knight piece
  * @author Dalton Herrewynen
- * @version 3
+ * @version 4
  * @see Piece
  */
 public class Knight extends Piece{
@@ -108,13 +108,18 @@ public class Knight extends Piece{
 	 */
 	@Override
 	public int pieceValue(final long enemies,final long blanks,final int position){
-		int score=300, xPos=Coord.indexToX(position), yPos=Coord.indexToY(position);
-
-		if(xPos==0 || xPos==7){
-			if(yPos==0 || yPos==7) score-=75;//Steep penalty for knights in the corners
-			else score-=50;//Smaller penalty for knights at the edge
-		}
-		return score;
+		int score=300;
+		final int[] scoreLUT={
+				75,50,50,50,50,50,50,75,//score table is subject to change and tweaks
+				50,50,50,50,50,50,50,50,
+				50,50,10, 0, 0,10,50,50,
+				50,50, 0, 0, 0, 0,50,50,
+				50,50, 0, 0, 0, 0,50,50,
+				50,50,10, 0, 0,10,50,50,
+				50,50,50,50,50,50,50,50,
+				75,50,50,50,50,50,50,75,
+		};
+		return score-scoreLUT[position];
 	}
 
 	/**
@@ -140,7 +145,7 @@ public class Knight extends Piece{
 	 * @param enemies Mask of enemies to capture
 	 * @param blanks  Mask of blank squares
 	 * @param pos     The integer position index
-	 * @return a 64 bit integer bit mask
+	 * @return a 64-bit integer bit mask
 	 */
 	@Override
 	public long attackMask(final long enemies,final long blanks,final int pos){

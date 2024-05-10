@@ -1,20 +1,30 @@
 # Chess Engine
+<!-- TOC -->
+* [Chess Engine](#chess-engine)
+  * [Intellectual property](#intellectual-property)
+  * [Design](#design)
+    * [Board](#board)
+    * [Pieces](#pieces)
+    * [Coordinates](#coordinates)
+    * [PGN](#pgn)
+  * [Features](#features)
+<!-- TOC -->
 
-My personal version of the Chess back end that could have been used in my computing science group project. Due to design difficulties and coordination issues, I was unable to get some of the improvements into the main project. This project was started as a last gasp to get something that could be used if our Chess game lost against another group. Now it's a project to see what could have been done with my design had the group project been designed and coordinated correctly.
+My personal version of the Chess back end that could have been used in my computing science group project. Due to design difficulties and coordination issues, I was unable to get some of the improvements into the main project. This project was started as a backup option that could be used if our Chess game failed.
 
 ## Intellectual property
 
-Since I wrote the overwhelming majority of the latest version of the old game, I am the author of those lines of code and I own the rights to use what I wrote. Any contested lines are going to be removed before Version 1 anyway, they're only there to be compatible with the old game, a task which is no longer relevant and would actively hinder this versions if I left those parts as-is.
+All code in this repository was authored by me alone.
 
 ## Design
 
-The backend is stripped down and made to be more efficient than the original group project. Only code that I wrote will survive in this project. So far, only the scoring algorithm was borrowed from the other authors of my group project, and I plan to remove and re-write it anyway since I can write something better.
+The backend is stripped down and made to be more efficient than the original group project. But the front-end is just a simple command line interface, a full graphical interface is not needed since I am focusing only on the engine, not on the user interface... user interfaces for Chess already exist and can use external engines.
 
-The design is not a 1:1 replacement of the old game, mostly because of the headache of converting to the systems and designs used by some parts of the old game (some methods actively use both the old and new move types... not good). Hence, this is more of a fresh start.
+This design is fully my own, moving closer and closer to what I initially envisioned for the engine and its internals. Time constraints prevented me from making some of the improvements I wanted to implement.
 
 ### Board
 
-For speed and memory reasons, I found that the original version of the game ran faster eliminated null pointer problems when using a bitboard and passing integer piece codes around instead of Piece pointers. Searching is a lot faster when using a bitboard, and integer piece codes have some unique advantages including the possibility of using `switch` statements and look up tables for speed.
+A bitboard based chess board. Also contains some supporting methods such as the ones used to apply a move to the board. However, the board does not have any legality checking, its job is only to be a data structure with some minimal support methods.
 
 The board does not calculate any moves or do anything interesting, its only job is to store and update the board and piece positions:
 
@@ -22,7 +32,7 @@ The board does not calculate any moves or do anything interesting, its only job 
 - Make moves
 - Add pieces
 - Delete pieces
-- Get masked piece positions
+- Search pieces that fit into a bitmask
 
 ### Pieces
 
@@ -47,10 +57,10 @@ PGN handler class jobs:
 
 ## Features
 
-- Working CLI
+- Minimal working CLI
 - PGN handler class
 - Board
-  - Convert to ASCII art
+  - Convert to ASCII art string
   - Add/delete pieces
   - Take moves
   - Mask search
