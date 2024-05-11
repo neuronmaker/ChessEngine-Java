@@ -1,20 +1,46 @@
 # Chess Engine
 <!-- TOC -->
 * [Chess Engine](#chess-engine)
-  * [Intellectual property](#intellectual-property)
+  * [How to run](#how-to-run)
+    * [Automated build](#automated-build)
+    * [Minimal requirements](#minimal-requirements)
   * [Design](#design)
     * [Board](#board)
     * [Pieces](#pieces)
     * [Coordinates](#coordinates)
     * [PGN](#pgn)
   * [Features](#features)
+  * [Intellectual property](#intellectual-property)
 <!-- TOC -->
-
 My personal version of the Chess back end that could have been used in my computing science group project. Due to design difficulties and coordination issues, I was unable to get some of the improvements into the main project. This project was started as a backup option that could be used if our Chess game failed.
 
-## Intellectual property
+## How to run
 
-All code in this repository was authored by me alone.
+This is a minimal Java program. There are several ways to run this program:
+
+### Automated build
+
+I used the [Ant](https://ant.apache.org/) build tool for this project. If you have Ant installed, then all you need to do is to run the following command.
+
+```shell
+ant run
+```
+
+Ant will automatically compile the Java code, pack it into a `JAR` file, and then run that jar file for you.
+
+### Minimal requirements
+
+In order to run this program, you will need Java to be installed. Install Java for your system in the recommended way.
+
+You will need to run two commands, one compiles the program, the other runs it.
+
+```shell
+javac -d "build" src/com/dalton/ChessEngine/*
+
+java -classpath "build" com.dalton.ChessEngine.Main
+```
+
+This will only run the program, it will not create a distributable `JAR` file. The automated build process creates a `JAR` file anyway, using Ant is the preferred way to build and run.
 
 ## Design
 
@@ -69,3 +95,7 @@ PGN handler class jobs:
 - Pieces
     - Move generation
     - Look up based on Piece codes
+
+## Intellectual property
+
+All code in this repository was authored by me alone.
